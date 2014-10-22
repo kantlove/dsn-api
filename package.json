@@ -4,7 +4,11 @@
   "description": "Dream Social Network API",
   "main": "app.js",
   "dependencies": {
-    "express": "^4.9.8"
+    "express": "*",
+    "morgan": "*",
+    "body-parser": "*",
+    "method-override": "*",
+    "optimist": "*"
   },
   "devDependencies": {},
   "scripts": {
