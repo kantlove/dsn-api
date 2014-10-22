@@ -19,14 +19,14 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 
 /* Definition */
+
+/* Version 1 */
 app.all('/v1/*', function (req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	return next();
 });
 
-var router = require('./controllers/v1/router');
-app.use('/v1', router());
-
+app.use('/v1', require('./controllers/v1/router'));
 
 /* Create server */
 app.listen(port, function () {
