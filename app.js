@@ -33,10 +33,12 @@ app.use('/docs', require('./swagger/router'));
 
 /* Create server */
 app.listen(port, function () {
-    console.log('─▄▀─▄▀');
-    console.log('──▀──▀');
-    console.log('█▀▀▀▀▀█▄');
-    console.log('█░░░░░█─█');
-    console.log('▀▄▄▄▄▄▀▀');
-    console.log("Magic happens on port", port);
+    console.log();
+    console.log('\t\t\t\t ▄▀ ▄▀');
+    console.log('\t\t\t\t  ▀  ▀');
+    console.log('\t\t\t\t█▀▀▀▀▀█▄');
+    console.log('\t\t\t\t█░░░░░█─█');
+    console.log('\t\t\t\t▀▄▄▄▄▄▀▀');
+    console.log();
+    console.log("\t\t\tMagic happens on port", port);
 });
