@@ -28,7 +28,15 @@ app.all('/v1/*', function (req, res, next) {
 
 app.use('/v1', require('./controllers/v1/router'));
 
+// for swagger 
+app.use('/docs', require('./swagger/router'));
+
 /* Create server */
 app.listen(port, function () {
+    console.log('─▄▀─▄▀');
+    console.log('──▀──▀');
+    console.log('█▀▀▀▀▀█▄');
+    console.log('█░░░░░█─█');
+    console.log('▀▄▄▄▄▄▀▀');
     console.log("Magic happens on port", port);
 });

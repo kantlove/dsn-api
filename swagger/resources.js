@@ -1,5 +1,5 @@
-var sw = require("../");
-var param = require("../lib/paramTypes.js");
+var sw = require("../swagger/");
+var param = require("./lib/paramTypes.js");
 var url = require("url");
 var swe = sw.errors;
 
