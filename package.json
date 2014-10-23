@@ -4,11 +4,13 @@
   "description": "Dream Social Network API",
   "main": "app.js",
   "dependencies": {
-    "express": "*",
-    "morgan": "*",
     "body-parser": "*",
+    "express": "*",
     "method-override": "*",
-    "optimist": "*"
+    "morgan": "*",
+    "mysql": "*",
+    "optimist": "*",
+    "sequelize": "*"
   },
   "devDependencies": {},
   "scripts": {
