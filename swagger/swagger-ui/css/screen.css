@@ -102,8 +102,10 @@ section {
     display: block;
 }
 body {
+    font-family: "Segoe WP", sans-serif;
     line-height: 1;
-    background: url(../images/bg.png) no-repeat center center fixed;
+    background: url(../images/bg.png) no-repeat;
+    background-size: 100% auto;
 }
 ol,
 ul {
@@ -1010,12 +1012,14 @@ table {
 #header {
     background-color: rgb(71, 138, 180);
     padding: 14px;
+    height: auto;
 }
 #header a#logo {
     font-size: 1.5em;
     font-weight: bold;
     text-decoration: none;
-    background: transparent url(../images/logo_small.png) no-repeat left center;
+    background: transparent url(../images/logo.png) no-repeat left center;
+    background-size: 30px auto;
     padding: 20px 0 20px 40px;
     color: white;
 }
@@ -1032,9 +1036,17 @@ table {
 }
 #header form#api_selector .input input#input_apiKey {
     width: 200px;
+    height: 20px;
+    border-radius: 5px;
+    border: 0;
+    padding: 3px;
 }
 #header form#api_selector .input input#input_baseUrl {
     width: 400px;
+    height: 20px;
+    border-radius: 5px;
+    border: 0;
+    padding: 3px;
 }
 #header form#api_selector .input a#explore {
     display: block;
@@ -1050,7 +1062,7 @@ table {
     -ms-border-radius: 4px;
     -khtml-border-radius: 4px;
     border-radius: 4px;
-    box-shadow: 1px 1px rgba(0,0,0,0.5);
+    box-shadow: 0 2px rgba(0,0,0,0.5);
 }
 #header form#api_selector .input a#explore:hover {
     background-color: #bebebe;
