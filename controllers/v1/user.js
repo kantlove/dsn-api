@@ -1,8 +1,6 @@
-var express = require('express');
-var router = express.Router();
+var db = require('./database');
+var User = db.models.User;
 
-router.get('/', function (req, res) {
-    res.send('User');
-});
-
-module.exports = router;
+module.exports = function (router) {
+    
+}

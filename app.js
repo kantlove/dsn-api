@@ -26,7 +26,7 @@ app.all('/v1/*', function (req, res, next) {
 	return next();
 });
 
-app.use('/v1', require('./controllers/v1/router'));
+app.use('/v1', require('./controllers/v1'));
 
 // for swagger 
 app.use('/docs', require('./swagger/router'));
