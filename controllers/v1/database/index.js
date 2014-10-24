@@ -26,9 +26,21 @@ var client = new sequelize(connectionString, {
 /* Models */
 
 var User = client.define('User', {
-    fullname: { type: sequelize.STRING, allowNull: false },
-    username: { type: sequelize.STRING, allowNull: false },
-    password: { type: sequelize.STRING, allowNull: false },
+    fullname: {
+        type: sequelize.STRING,
+        allowNull: false,
+        validate: { notEmpty: true }
+    },
+    username: {
+        type: sequelize.STRING,
+        allowNull: false,
+        validate: { notEmpty: true }
+    },
+    password: {
+        type: sequelize.STRING,
+        allowNull: false,
+        validate: { notEmpty: true }
+    },
     email: {
         type: sequelize.STRING,
         allowNull: false,
@@ -60,6 +72,10 @@ var AchievementComment = client.define('AchievementComment', {
     text: { type: sequelize.TEXT, allowNull: false }
 });
 
+var Session = client.define('Session', {
+    expire: { type: sequelize.DATE, allowNull: false }
+});
+
 /* Relations */
 
 Dream.belongsTo(User);
@@ -81,6 +97,8 @@ AchievementLike.belongsTo(Achievement);
 
 AchievementComment.belongsTo(User);
 AchievementComment.belongsTo(Achievement);
+
+Session.belongsTo(User);
 
 /* Execute */
 
