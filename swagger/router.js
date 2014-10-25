@@ -4,8 +4,12 @@ var express = require("express"),
     router = express.Router(),
     swagger = require("../swagger").createNew(router);
 
-var resources = require("./resources.js");
+var models = require("./models/models.js");
 
+var userRs          = require('./resources/user_resources.js'),
+    authRs          = require('./resources/auth_resources.js'),
+    dreamRs         = require('./resources/dream_resources.js'),
+    achievementRs   = require('./resources/achievement_resources.js');
 
 // This is a sample validator.  It simply says that for _all_ POST, DELETE, PUT
 // methods, the header `api_key` OR query param `api_key` must be equal
@@ -16,20 +20,12 @@ swagger.addValidator(
     }
 );
 
-var models = require("./models.js");
-
 // Add models and methods to swagger
 swagger.addModels(models)
-.addGet(resources.getFunction)
-.addPost(resources.postFunction)
-.addPut(resources.putFunction)
-.addDelete(resources.deleteFunction);
-
-swagger.configureDeclaration("user", {
-    description : "Testing functions",
-    authorizations : ["oauth2"],
-    produces: ["application/json"]
-});
+.addPost(authRs.signIn)
+.addGet(userRs.getUserInfo).addPost(userRs.register)
+.addPost(dreamRs.createDream).addPut(dreamRs.updateDream).addPost(dreamRs.comment).addDelete(dreamRs.deleteDream)
+.addPost(achievementRs.createAchievement).addPut(achievementRs.updateAchievement).addDelete(achievementRs.deleteAchievement);
 
 // set api info
 swagger.setApiInfo({
