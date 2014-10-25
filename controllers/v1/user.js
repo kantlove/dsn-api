@@ -8,14 +8,13 @@ var Session = db.models.Session;
 module.exports = function (router) {
     // Register new user
     router.post('/user', function (req, res) {
-    	User
-    		.create(req.body)
-			.success(function (user) {
-				res.send('Success!');
-    		})
-    		.error(function (err) {
-    			res.status(400).send(err);
-    		});
+        User
+            .create(req.body)
+            .then(function (user) {
+                res.send('Success!');
+            }, function (err) {
+                res.status(400).send(err);
+            });
     });
 
     // Get user details
@@ -28,16 +27,15 @@ module.exports = function (router) {
     	} else {
 	    	User
 				.find({ where: { id: req.query.userId }})
-				.success(function (user) {
+                .then(function (user) {
                     if (!user) {
                         res.status(400).send('Invalid user!');
                     } else {
-					   res.status(200).send(user.values);
+                        res.status(200).send(user.values);
                     }
-				})
-				.error(function (err) {
-					res.status(400).send(err);
-				});
+                }, function (err) {
+                    res.status(400).send(err);
+                });
 		}
     });
 }

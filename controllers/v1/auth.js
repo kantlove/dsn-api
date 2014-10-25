@@ -17,7 +17,7 @@ module.exports = function (router) {
 						{ username: req.body.username }
 					))
 			})
-			.success(function (user) {
+			.then(function (user) {
 				if (!user) {
 					res.status(400).send('Invalid information, cannot create new session!');
 				} else {
@@ -32,8 +32,7 @@ module.exports = function (router) {
 						res.status(400).send(err);
 					});
 				}
-			})
-			.error(function (err) {
+			}, function (err) {
 				res.status(400).send(err);
 			});
 	});

@@ -55,7 +55,7 @@ var Dream = client.define('Dream', {
 });
 
 var DreamLike = client.define('DreamLike', {
-    value: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true }
+    value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 });
 
 var DreamComment = client.define('DreamComment', {
@@ -67,7 +67,7 @@ var Achievement = client.define('Achievement', {
 });
 
 var AchievementLike = client.define('AchievementLike', {
-    value: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true }
+    value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 });
 
 var AchievementComment = client.define('AchievementComment', {
