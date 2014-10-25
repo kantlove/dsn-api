@@ -19,9 +19,8 @@ module.exports = function (router) {
 			})
 			.success(function (user) {
 				if (!user) {
-					res.status(400).send('No user!');
-				}
-				else {
+					res.status(400).send('Invalid information, cannot create new session!');
+				} else {
 					Session.create({
 						expire: moment().utc().add(3, 'days').toDate(),
 						UserId: user.values.id

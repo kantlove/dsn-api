@@ -11,7 +11,7 @@ module.exports = function (router) {
     	User
     		.create(req.body)
 			.success(function (user) {
-				res.send('Success !');
+				res.send('Success!');
     		})
     		.error(function (err) {
     			res.status(400).send(err);
@@ -22,16 +22,18 @@ module.exports = function (router) {
     // /user?sessionId=NUM&userId=NUM
     router.get('/user', function (req, res) {
     	if (!req.query.sessionId) {
-    		res.status(400).send('SessionId missing!');
-    	}
-    	else if (!req.query.userId) {
-    		res.status(400).send('UserId missing!');
-    	}
-    	else {
+    		res.status(400).send('sessionId missing!');
+    	} else if (!req.query.userId) {
+    		res.status(400).send('userId missing!');
+    	} else {
 	    	User
 				.find({ where: { id: req.query.userId }})
 				.success(function (user) {
-					res.status(200).send(user.values);
+                    if (!user) {
+                        res.status(400).send('Invalid user!');
+                    } else {
+					   res.status(200).send(user.values);
+                    }
 				})
 				.error(function (err) {
 					res.status(400).send(err);
