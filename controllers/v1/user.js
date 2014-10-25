@@ -19,8 +19,23 @@ module.exports = function (router) {
     });
 
     // Get user details
-    router.get('/user/:sessionId', function (req, res) {
-    	console.log(sessionId);
-    	send(200);
+    // /user?sessionId=NUM&userId=NUM
+    router.get('/user', function (req, res) {
+    	if (!req.query.sessionId) {
+    		res.status(400).send('SessionId missing!');
+    	}
+    	else if (!req.query.userId) {
+    		res.status(400).send('UserId missing!');
+    	}
+    	else {
+	    	User
+				.find({ where: { id: req.query.userId }})
+				.success(function (user) {
+					res.status(200).send(user.values);
+				})
+				.error(function (err) {
+					res.status(400).send(err);
+				});
+		}
     });
 }
