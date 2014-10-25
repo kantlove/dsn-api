@@ -34,6 +34,7 @@ var User = client.define('User', {
     username: {
         type: sequelize.STRING,
         allowNull: false,
+        unique: true,
         validate: { notEmpty: true }
     },
     password: {
@@ -44,6 +45,7 @@ var User = client.define('User', {
     email: {
         type: sequelize.STRING,
         allowNull: false,
+        unique: true,
         validate: { isEmail: true }
     }
 });
@@ -122,5 +124,6 @@ module.exports.models = {
     DreamComment: DreamComment,
     Achievement: Achievement,
     AchievementLike: AchievementLike,
-    AchievementComment: AchievementComment
+    AchievementComment: AchievementComment,
+    Session: Session
 }

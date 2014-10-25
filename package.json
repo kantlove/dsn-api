@@ -8,11 +8,11 @@
         "express": "*",
         "lodash": "*",
         "method-override": "*",
+        "moment": "*",
         "morgan": "*",
         "mysql": "*",
         "optimist": "*",
-        "sequelize": "*",
-        "url": "*"
+        "sequelize": "*"
     },
     "devDependencies": {},
     "scripts": {
