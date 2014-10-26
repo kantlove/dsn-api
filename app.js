@@ -29,7 +29,7 @@ app.all('/v1/*', function (req, res, next) {
 app.use('/v1', require('./controllers/v1'));
 
 // for swagger 
-app.use('/docs', require('./swagger/router'));
+app.use('/', require('./swagger/router'));
 
 /* Create server */
 app.listen(port, function () {

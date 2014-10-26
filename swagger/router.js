@@ -49,7 +49,7 @@ var docs_handler = express.static(__dirname + '/swagger-ui/');
 
 router.get(/^\/docs(\/.*)?$/, function(req, res, next) {
     if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
-        res.writeHead(302, { 'Location' : req.url + '/docs/' });
+        res.writeHead(302, { 'Location' : req.url + '/' });
         res.end();
         return;
     }
