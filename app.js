@@ -4,6 +4,10 @@ var express = require('express'),
     path    = require('path'),
     argv    = require('optimist').argv;
 
+/* Save a root directory for global use */
+var path = require('path');
+global.appRoot = path.resolve(__dirname);
+
 /* Config */
 var port = argv.port || 5000;
 
