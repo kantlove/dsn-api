@@ -49,14 +49,7 @@ swagger.configure("http://localhost:5000", "1.0.0");
 // Serve up swagger ui at /docs via static route
 var docs_handler = express.static(__dirname + '/swagger-ui/');
 
-router.get(/^\/docs(\/.*)?$/, function(req, res, next) {
-    if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
-        res.writeHead(302, { 'Location' : req.url + '/docs/' });
-        res.end();
-        return;
-    }
-    // take off leading /docs so that connect locates file correctly
-    req.url = req.url.substr(5);
+router.get(/^(\/.*)?$/, function(req, res, next) {
     return docs_handler(req, res, next);
 });
 
