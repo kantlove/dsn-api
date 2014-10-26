@@ -81,6 +81,7 @@ var Session = client.define('Session', {
 /* Relations */
 
 Dream.belongsTo(User);
+Dream.hasMany(Achievement);
 Dream.hasMany(DreamLike, { as: 'Likes'});
 Dream.hasMany(DreamComment, { as: 'Comments' });
 
@@ -90,7 +91,6 @@ DreamLike.belongsTo(Dream);
 DreamComment.belongsTo(User);
 DreamComment.belongsTo(Dream);
 
-Achievement.belongsTo(User);
 Achievement.hasMany(AchievementLike, { as: 'Likes' });
 Achievement.hasMany(AchievementComment, { as: 'Comments' });
 

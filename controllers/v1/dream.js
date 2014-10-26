@@ -14,7 +14,7 @@ module.exports = function (router) {
 			res.status(400).send('text missing!');
 		} else {
 			Session
-				.find({ where: { sessionId: req.body.sessionId }})
+				.find({ where: { id: req.body.sessionId }})
 				.then(function (session) {
 					if (!session) {
 						res.status(400).send('Invalid sessionId!');
@@ -23,7 +23,7 @@ module.exports = function (router) {
 							text: req.body.text,
 							UserId: session.UserId
 						}).then(function (dream) {
-							res.status(200).send('Success!');
+							res.status(200).send({ dreamId: dream.dreamId });
 						}, function (err) {
 							res.status(400).send(err);
 						});
@@ -44,13 +44,13 @@ module.exports = function (router) {
 			res.status(400).send('text missing!');
 		} else {
 			Session
-				.find({ where: { sessionId: req.body.sessionId }})
+				.find({ where: { id: req.body.sessionId }})
 				.then(function (session) {
 					if (!session) {
 						res.status(400).send('Invalid sessionId!');
 					} else {
 					 	Dream
-					 		.find({ where: { dreamId: req.body.dreamId }})
+					 		.find({ where: { id: req.body.dreamId }})
 					 		.then(function (dream) {
 					 			if (dream.UserId != session.UserId) {
 					 				res.status(400).send('Unauthorized!');
@@ -80,13 +80,13 @@ module.exports = function (router) {
 			res.status(400).send('dreamId missing!');
 		} else {
 			Session
-				.find({ where: { sessionId: req.body.sessionId }})
+				.find({ where: { id: req.body.sessionId }})
 				.then(function (session) {
 					if (!session) {
 						res.status(400).send('Invalid sessionId!');
 					} else {
 					 	Dream
-					 		.find({ where: { dreamId: req.body.dreamId }})
+					 		.find({ where: { id: req.body.dreamId }})
 					 		.then(function (dream) {
 					 			if (dream.UserId != session.UserId) {
 					 				res.status(400).send('Unauthorized!');
