@@ -11,7 +11,8 @@
 ---------------------------
 */
 
-var config = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, 'config.json'), 'utf8'));
+var configFile = global.localDb ? 'config-local.json' : 'config-server.json';
+var config = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, configFile), 'utf8'));
 var connectionString =
     config.dialect + '://' + config.username + ':' + config.password
     + '@' + config.host + ':' + config.port + '/' + config.database;
@@ -21,7 +22,7 @@ var sequelize = require("sequelize");
 var client = new sequelize(connectionString, {
     // more options here
     // http://sequelizejs.com/docs/1.7.8/usage#options
-    logging: false
+    logging: global.logging ? console.log : false
 });
 
 /* Models */
@@ -106,7 +107,7 @@ Session.belongsTo(User);
 /* Execute */
 
 client
-    .sync({ force: false })
+    .sync({ force: global.resetDb })
     .complete(function (err) {
         if (err) {
             console.log('An error occurred while creating the table:', err)

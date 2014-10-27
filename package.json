@@ -23,7 +23,8 @@
     "mocha": "^2.0.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js --localServer --localDb",
+    "deloy": "node app.js --logging"
   },
   "repository": {
     "type": "git",

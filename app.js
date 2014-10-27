@@ -1,13 +1,25 @@
 /* Server */
 var express = require('express'),
     path    = require('path'),
-    argv    = require('optimist').argv;
+    argv    = require('optimist').argv,
+    fs      = require('fs');
 
 /* Config */
-global.appPort    = argv.port || 5000;
-global.appHost    = "http://localhost:" + global.appPort;
-global.appVersion = require('./package.json').version;
-global.appRoot    = path.resolve(__dirname);
+global.resetDb     = argv.resetDb || false;
+global.localServer = argv.localServer || false;
+global.localDb     = argv.localDb || false;
+global.logging     = argv.logging || false;
+global.appPort     = argv.port || 5000;
+global.appRoot     = path.resolve(__dirname);
+global.appVersion  = require('./package.json').version;
+if (global.localServer)
+    global.appHost = 'http://localhost:' + global.appPort;
+else
+    global.appHost = 'http://dreamyday.tk';
+
+fs.writeFileSync('./swagger-ui/index.html',
+        fs.readFileSync('./swagger-ui/index.txt', 'utf8')
+            .replace('{swagger-startup-url}', global.appHost + '/api-docs'));
 
 var corsOptions = {
     origin: function (origin, callback) {
@@ -22,7 +34,8 @@ var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 
 var app = express();
-app.use(morgan('dev'));
+if (global.logging)
+    app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(methodOverride());
@@ -32,7 +45,7 @@ app.use(cors(corsOptions));
 require('./swagger').attach(app);
 
 var docsHandler = express.static(path.join(global.appRoot, 'swagger-ui'));
-app.get(/^\/docs(\/.*)?$/, function(req, res, next) {
+app.get(/^\/docs(\/.*)?$/, function (req, res, next) {
     if (req.url === '/docs') {
         res.writeHead(302, { 'Location' : req.url + '/' });
         res.end();
