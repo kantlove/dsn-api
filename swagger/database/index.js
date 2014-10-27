@@ -30,24 +30,24 @@ var User = client.define('User', {
     fullname: {
         type: sequelize.STRING,
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notNull:true, notEmpty: true }
     },
     username: {
         type: sequelize.STRING,
         allowNull: false,
         unique: true,
-        validate: { notEmpty: true }
+        validate: { notNull:true, notEmpty: true }
     },
     password: {
         type: sequelize.STRING,
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notNull:true, notEmpty: true }
     },
     email: {
         type: sequelize.STRING,
         allowNull: false,
         unique: true,
-        validate: { isEmail: true }
+        validate: { notNull:true, isEmail: true }
     }
 }, { underscored: true });
 

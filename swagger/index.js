@@ -1,7 +1,7 @@
 module.exports.attach = function (app) {
     var swagger = require('./lib').createNew(app);
 
-    swagger.addModels(require('./models'));
+    require('./models').attach(swagger);
     require('./resources').attach(swagger);
 
     swagger.setApiInfo({
