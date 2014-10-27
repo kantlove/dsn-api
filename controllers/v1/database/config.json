@@ -1,8 +1,0 @@
-{
-    "dialect": "mysql",
-    "username": "root",
-    "password": "ZhTGD7kBQm57",
-    "host": "localhost",
-    "port": "3306",
-    "database": "dsn"
-}
