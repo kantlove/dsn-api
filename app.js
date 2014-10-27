@@ -1,42 +1,49 @@
 /* Server */
 var express = require('express'),
-    http    = require('http'),
     path    = require('path'),
     argv    = require('optimist').argv;
 
-/* Save a root directory for global use */
-var path = require('path');
-global.appRoot = path.resolve(__dirname);
-
 /* Config */
-var port = argv.port || 5000;
+global.appPort    = argv.port || 5000;
+global.appHost    = "http://localhost:" + global.appPort;
+global.appVersion = require('./package.json').version;
+global.appRoot    = path.resolve(__dirname);
 
-/* All environments */
-var app = express();
-var morgan  = require('morgan');
-var bodyParser = require('body-parser');
+var corsOptions = {
+    origin: function (origin, callback) {
+        callback(null, true);
+    }
+}
+
+/* Create server */
+var cors           = require('cors');
+var morgan         = require('morgan');
+var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 
-app.use(morgan('combined'));
+var app = express();
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(methodOverride());
+app.use(cors(corsOptions));
 
-/* Definition */
+/* Swagger */
+require('./swagger').attach(app);
 
-/* Version 1 */
-app.all('/v1/*', function (req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	return next();
+var docsHandler = express.static(path.join(global.appRoot, 'swagger-ui'));
+app.get(/^\/docs(\/.*)?$/, function(req, res, next) {
+    if (req.url === '/docs') {
+        res.writeHead(302, { 'Location' : req.url + '/' });
+        res.end();
+        return;
+    }
+    req.url = req.url.substr('/docs'.length);
+    return docsHandler(req, res, next);
 });
 
-app.use('/v1', require('./controllers/v1'));
-
-// for swagger 
-app.use('/', require('./swagger/router'));
-
-/* Create server */
-app.listen(port, function () {
+/* Start server */
+app.listen(global.appPort, function () {
     console.log();
     console.log('\t\t\t\t ▄▀ ▄▀');
     console.log('\t\t\t\t  ▀  ▀');
@@ -44,5 +51,5 @@ app.listen(port, function () {
     console.log('\t\t\t\t█░░░░░█─█');
     console.log('\t\t\t\t▀▄▄▄▄▄▀▀');
     console.log();
-    console.log("\t\t\tMagic happens on port", port);
+    console.log("\t\t\tMagic happens on port", global.appPort);
 });
