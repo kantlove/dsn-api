@@ -5,7 +5,8 @@ var param = lib.params,
     raise = lib.errors;
 
 var User    = db.models.User,
-    Session = db.models.Session;
+    Session = db.models.Session,
+    Dream   = db.models.Dream;
 
 module.exports = function (swagger) {
     // Get user information
@@ -137,6 +138,46 @@ module.exports = function (swagger) {
                 .catch(function (err) {
                     res.status(400).send(err);
                 });
+        }
+    });
+    
+    // Get all dreams of user
+    swagger.addGet({
+        'spec': {
+            nickname: 'getAllDreamsOfUser',
+            path:'/user/dreams',
+            summary: 'Get all dreams of a user',
+            notes: 'Return dreams from userId',
+            method: 'GET',
+            produces: ['application/json'],
+            type: 'array',
+            items: {
+                $ref: 'Dream'
+            },
+            parameters: [
+                param.query('sessionId', 'Session unique identifier', 'integer', true),
+                param.query('userId', 'User unique identifier', 'integer', true),
+                param.query('offset', 'The number of dreams you want to skip', 'integer', false),
+                param.query('limit', 'The number of dreams you want to get', 'integer', false)
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.query.sessionId)
+                throw raise.notFound('sessionId');
+            if (!req.query.userId)
+                throw raise.notFound('userId');
+            var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
+ 
+            Dream.findAll({
+                where: {user_id: req.query.userId},
+                offset: offset,
+                limit: limit
+            }).then(function (dreams) {
+                res.status(200).send(dreams);
+            })
+            .catch(function(err) {
+                res.status(400).send(err);
+            });
         }
     });
 
