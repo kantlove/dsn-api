@@ -19,7 +19,7 @@ module.exports = function (swagger) {
             notes: 'Return a achievement based on id',
             method: 'GET',
             produces : ['application/json'],
-            type: 'Dream',
+            type: 'Achievement',
             parameters: [
                 param.query('sessionId', 'Session unique identifier', 'integer', true),
                 param.query('achievementId', 'Achievement unique identifier', 'integer', true)

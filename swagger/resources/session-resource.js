@@ -28,15 +28,15 @@ module.exports = function (swagger) {
                 throw raise.notFound('sessionId');
 
             Session
-                .find({ where: { id: req.query.sessionId }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('sessionId');
-                    res.status(200).send(session);
-                })
-                .catch(function (err) {
-                    res.status(400).send(err);
-                })
+            .find({ where: { id: req.query.sessionId }})
+            .then(function (session) {
+                if (!session)
+                    throw raise.invalid('sessionId');
+                res.status(200).send(session);
+            })
+            .catch(function (err) {
+                res.status(400).send(err);
+            })
         }
     });
 
@@ -51,7 +51,7 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             parameters: [
                 param.body('body', 'Contains all required information to create a new session',
-                        'SessionPost', JSON.stringify({ user_id: '0' }, null, 4))
+                           'SessionPost', JSON.stringify({ user_id: '0' }, null, 4))
             ]
         },
         'action': function (req, res) {
@@ -59,20 +59,72 @@ module.exports = function (swagger) {
                 throw raise.notFound('user_id');
 
             Session
-                .create({
-                    user_id: req.body.user_id,
-                    expire: moment.utc().add(3, 'days').toDate()
+            .create({
+                user_id: req.body.user_id,
+                expire: moment.utc().add(3, 'days').toDate()
+            })
+            .then(function (session) {
+                res.status(200).send({
+                    result: 'success',
+                    session_id: session.id,
+                    expire: session.expire
                 })
-                .then(function (session) {
-                    res.status(200).send({
-                        result: 'success',
-                        session_id: session.id,
-                        expire: session.expire
+            })
+            .catch(function (err) {
+                res.status(400).send(err);
+            });
+        }
+    });
+
+    // Create session or Sign in with username and password
+    swagger.addPost({
+        'spec': {
+            nickname: 'signIn',
+            path: '/session/signin',
+            summary: 'Create a new session from a given data',
+            notes: 'Create a new session',
+            method: 'POST',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Contains all required information to create a new session',
+                           'SessionPost2', JSON.stringify({ username: 'username', password: 'password' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.username)
+                throw raise.notFound('username');
+            if (!req.body.password)
+                throw raise.notFound('password');
+
+            var result = false;
+            // check the user info
+            User
+            .find({ where: {username: req.body.username}})
+            .then(function(user) {
+                if(user.password == req.body.password) {
+                    Session
+                    .create({
+                        user_id: req.body.user_id,
+                        expire: moment.utc().add(3, 'days').toDate()
                     })
-                })
-                .catch(function (err) {
-                    res.status(400).send(err);
-                });
+                    .then(function (session) {
+                        res.status(200).send({
+                            result: 'success',
+                            session_id: session.id,
+                            expire: session.expire
+                        })
+                    })
+                    .catch(function (err) {
+                        res.status(400).send(err);
+                    });
+                }
+                else {
+                    res.status(400).send({message: 'Invalid password!'});
+                }
+            })
+            .catch(function(err) {
+                res.status(400).send({message: 'Username not found!'});  // user not found
+            });
         }
     });
 

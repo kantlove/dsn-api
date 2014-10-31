@@ -34,6 +34,22 @@ module.exports = {
             }
         }
     },
+    
+    // Session but with username & password
+    "SessionPost2": {
+        "id": "SessionPost2",
+        "required": ["username", "password"],
+        "properties": {
+            "username": {
+                "type": "string",
+                "description": "Username"
+            },
+            "password": {
+                "type": "string",
+                "description": "User's password"
+            }
+        }
+    },
 
     // Dream
     "DreamPost": {
