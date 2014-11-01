@@ -85,5 +85,21 @@ module.exports = {
                 "description": "Content of the achievement"
             }
         }
+    },
+    
+    // Hashtag
+    "HashtagPost": {
+        "id": "HashtagPost",
+        "required": ["hashtag_id", "text"],
+        "properties": {
+            "hashtag_id": {
+                "type": "int",
+                "description": "Hashtag unique identifier"
+            },
+            "text": {
+                "type": "string",
+                "description": "Hastag content"
+            }
+        }
     }
 }

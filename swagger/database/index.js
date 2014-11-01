@@ -15,7 +15,7 @@ var configFile = global.localDb ? 'config-local.json' : 'config-server.json';
 var config = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, configFile), 'utf8'));
 var connectionString =
     config.dialect + '://' + config.username + ':' + config.password
-    + '@' + config.host + ':' + config.port + '/' + config.database;
++ '@' + config.host + ':' + config.port + '/' + config.database;
 
 /* Create a new client */
 var sequelize = require("sequelize");
@@ -80,41 +80,54 @@ var Session = client.define('Session', {
     expire: { type: sequelize.DATE, allowNull: false }
 }, { underscored: true });
 
+var Hashtag = client.define('Hashtag', {
+    text: { type: sequelize.TEXT, allowNull: false }
+}, { underscored: true });
+
 /* Relations */
 
 Dream.belongsTo(User);
 Dream.hasMany(Achievement);
 Dream.hasMany(DreamLike, { as: 'Likes'});
 Dream.hasMany(DreamComment, { as: 'Comments' });
+Dream.hasMany(Hashtag);
 
 DreamLike.belongsTo(User);
 DreamLike.belongsTo(Dream);
 
+DreamComment.hasMany(Hashtag);
 DreamComment.belongsTo(User);
 DreamComment.belongsTo(Dream);
 
 Achievement.hasMany(AchievementLike, { as: 'Likes' });
 Achievement.hasMany(AchievementComment, { as: 'Comments' });
+Achievement.hasMany(Hashtag);
 
 AchievementLike.belongsTo(User);
 AchievementLike.belongsTo(Achievement);
 
+AchievementComment.hasMany(Hashtag);
 AchievementComment.belongsTo(User);
 AchievementComment.belongsTo(Achievement);
 
 Session.belongsTo(User);
 
+Hashtag.hasMany(Dream);
+Hashtag.hasMany(DreamComment);
+Hashtag.hasMany(Achievement);
+Hashtag.hasMany(AchievementComment);
+
 /* Execute */
 
 client
-    .sync({ force: global.resetDb })
-    .complete(function (err) {
-        if (err) {
-            console.log('An error occurred while creating the table:', err)
-        } else {
-            console.log('It worked!')
-        }
-    });
+.sync({ force: global.resetDb })
+.complete(function (err) {
+    if (err) {
+        console.log('An error occurred while creating the table:', err)
+    } else {
+        console.log('It worked!')
+    }
+});
 
 /* Exports */
 
@@ -127,5 +140,6 @@ module.exports.models = {
     Achievement: Achievement,
     AchievementLike: AchievementLike,
     AchievementComment: AchievementComment,
-    Session: Session
+    Session: Session,
+    Hashtag: Hashtag
 }
