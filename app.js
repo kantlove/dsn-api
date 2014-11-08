@@ -18,8 +18,8 @@ else
     global.appHost = 'http://dreamyday.tk';
 
 fs.writeFileSync('./swagger-ui/index.html',
-        fs.readFileSync('./swagger-ui/index.txt', 'utf8')
-            .replace('{swagger-startup-url}', global.appHost + '/api-docs'));
+                 fs.readFileSync('./swagger-ui/index.txt', 'utf8')
+                 .replace('{swagger-startup-url}', global.appHost + '/api-docs'));
 
 var corsOptions = {
     origin: function (origin, callback) {
@@ -46,6 +46,7 @@ app.use(cors(corsOptions));
 require('./swagger').attach(app);
 
 var docsHandler = express.static(path.join(global.appRoot, 'swagger-ui'));
+// get /docs
 app.get(/^\/docs(\/.*)?$/, function (req, res, next) {
     if (req.url === '/docs') {
         res.writeHead(302, { 'Location' : req.url + '/' });
@@ -54,6 +55,14 @@ app.get(/^\/docs(\/.*)?$/, function (req, res, next) {
     }
     req.url = req.url.substr('/docs'.length);
     return docsHandler(req, res, next);
+});
+
+app.set('view engine', 'html');
+app.engine('html', require('hbs').__express);
+app.use(express.static('views'));
+// get /
+app.get(/^\/?$/, function (req, res, next) {
+    res.render("home");
 });
 
 /* Start server */
