@@ -100,7 +100,7 @@ module.exports = function (swagger) {
             var result = false;
             // check the user info
             User
-            .find({where: sequelize.or({username: req.body.username, email: req.body.email})})
+            .find({where: sequelize.or({username: req.body.username}, {email: req.body.email})})
             .then(function (user) {
                 if (user.password == req.body.password) {
                     Session
