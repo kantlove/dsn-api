@@ -1,6 +1,7 @@
-var lib    = require('../lib'),
-    db     = require('../database'),
-    moment = require('moment');
+var lib       = require('../lib'),
+    db        = require('../database'),
+    moment    = require('moment'),
+    sequelize = require('sequelize');
 
 var param = lib.params,
     raise = lib.errors;
@@ -87,24 +88,24 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             parameters: [
                 param.body('body', 'Contains all required information to create a new session',
-                           'SessionPost2', JSON.stringify({ username: 'username', password: 'password' }, null, 4))
+                           'SessionPost2', JSON.stringify({email: 'email', username: 'username', password: 'password'}, null, 4))
             ]
         },
         'action': function (req, res) {
-            if (!req.body.username)
-                throw raise.notFound('username');
+            if (!req.body.username && !req.body.email)
+                throw raise.notFound('username || email');
             if (!req.body.password)
                 throw raise.notFound('password');
 
             var result = false;
             // check the user info
             User
-            .find({ where: {username: req.body.username}})
-            .then(function(user) {
-                if(user.password == req.body.password) {
+            .find({where: sequelize.or({username: req.body.username, email: req.body.email})})
+            .then(function (user) {
+                if (user.password == req.body.password) {
                     Session
                     .create({
-                        user_id: req.body.user_id,
+                        user_id: user.id,
                         expire: moment.utc().add(3, 'days').toDate()
                     })
                     .then(function (session) {
