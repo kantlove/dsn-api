@@ -27,10 +27,10 @@ function appendToApi(rootResource, api, spec) {
     switch (parameter.paramType) {
     case 'path':
       if (api.path.indexOf('{' + parameter.name + '}') < 0) {
-        validationErrors.push({ 
+        validationErrors.push({
           'path': api.path,
           'name': parameter.name,
-          'error': 'invalid path1'
+          'error': 'invalid path'
         });
       }
       break;
