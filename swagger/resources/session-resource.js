@@ -21,18 +21,18 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             type: 'Session',
             parameters: [
-                param.query('sessionId', 'Session unique identifier', 'integer', true)
+                param.query('session_id', 'Session unique identifier', 'integer', true)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.sessionId)
-                throw raise.notFound('sessionId');
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
 
             Session
-            .find({ where: { id: req.query.sessionId }})
+            .find({ where: { id: req.query.session_id }})
             .then(function (session) {
                 if (!session)
-                    throw raise.invalid('sessionId');
+                    throw raise.invalid('session_id');
                 res.status(200).send(session);
             })
             .catch(function (err) {

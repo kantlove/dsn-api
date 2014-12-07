@@ -101,5 +101,21 @@ module.exports = {
                 "description": "Hastag content"
             }
         }
+    },
+
+    // Follow
+    "FollowPost": {
+        "id": "FollowPost",
+        "required": ["session_id", "user_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "user_id": {
+                "type": "int",
+                "description": "Unique identifier of the tser who you want to follow"
+            }
+        }
     }
 }

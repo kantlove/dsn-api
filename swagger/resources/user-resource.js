@@ -20,25 +20,25 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             type: 'User',
             parameters: [
-                param.query('sessionId', 'Session unique identifier', 'integer', true),
-                param.query('userId', 'User unique identifier', 'integer', true)
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('user_id', 'User unique identifier', 'integer', true)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.sessionId)
-                throw raise.notFound('sessionId');
-            if (!req.query.userId)
-                throw raise.notFound('userId');
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.user_id)
+                throw raise.notFound('user_id');
 
             Session
-                .find({ where: { id: req.query.sessionId }})
+                .find({ where: { id: req.query.session_id }})
                 .then(function (session) {
                     if (!session)
-                        throw raise.invalid('sessionId');
-                    User.find({ where: { id: req.query.userId }})
+                        throw raise.invalid('session_id');
+                    User.find({ where: { id: req.query.user_id }})
                         .then(function (user) {
                             if (!user)
-                                throw raise.invalid('userId');
+                                throw raise.invalid('user_id');
                             res.status(200).send(user);
                         })
                         .catch(function (err) {
@@ -147,7 +147,7 @@ module.exports = function (swagger) {
             nickname: 'getAllDreamsOfUser',
             path:'/user/dreams',
             summary: 'Get all dreams of a user',
-            notes: 'Return dreams from userId',
+            notes: 'Return dreams from user_id',
             method: 'GET',
             produces: ['application/json'],
             type: 'array',
@@ -155,29 +155,95 @@ module.exports = function (swagger) {
                 $ref: 'Dream'
             },
             parameters: [
-                param.query('sessionId', 'Session unique identifier', 'integer', true),
-                param.query('userId', 'User unique identifier', 'integer', true),
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('user_id', 'User unique identifier', 'integer', true),
                 param.query('offset', 'The number of dreams you want to skip', 'integer', false),
                 param.query('limit', 'The number of dreams you want to get', 'integer', false)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.sessionId)
-                throw raise.notFound('sessionId');
-            if (!req.query.userId)
-                throw raise.notFound('userId');
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.user_id)
+                throw raise.notFound('user_id');
             var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
  
-            Dream.findAll({
-                where: {user_id: req.query.userId},
-                offset: offset,
-                limit: limit
-            }).then(function (dreams) {
-                res.status(200).send(dreams);
-            })
-            .catch(function(err) {
-                res.status(400).send(err);
-            });
+            Dream
+                .findAll({
+                    where: { user_id: req.query.user_id },
+                    offset: offset,
+                    limit: limit
+                }).then(function (dreams) {
+                    res.status(200).send(dreams);
+                })
+                .catch(function(err) {
+                    res.status(400).send(err);
+                });
+        }
+    });
+
+    // Follow a user
+    swagger.addPost({
+        'spec': {
+            nickname: 'followUser',
+            path: '/user/follow',
+            summary: 'Follow another user from the given data',
+            notes: 'Follow another user',
+            method: 'POST',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'An object that describe the follow request', 'FollowPost', JSON.stringify({
+                    session_id: 'session_id',
+                    user_id: 'user_id'
+                }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.user_id)
+                throw raise.notFound('user_id');
+
+            Session
+                .find({ where: { id: req.body.session_id }})
+                .then(function (session) {
+                    if (!session)
+                        throw raise.invalid('session_id');
+                    User.find({ where: { id: session.user_id }})
+                        .then(function (userA) {
+                            if (!userA)
+                                throw raise.invalid('user_id of session_id');
+                            User.find({ where : { id: req.body.user_id }})
+                                .then(function (userB) {
+                                    if (!userB)
+                                        throw raise.invalid('user_id');
+                                    userA
+                                        .addFollowing(userB)
+                                        .then(function () {
+                                            userB
+                                                .addFollower(userA)
+                                                .then(function () {
+                                                    res.status(200).send(null);
+                                                })
+                                                .catch(function (err) {
+                                                    res.status(400).send(err);
+                                                });
+                                        })
+                                        .catch(function (err) {
+                                            res.status(400).send(err);
+                                        });
+                                })
+                                .catch(function (err) {
+                                    res.status(400).send(err);
+                                });
+                        })
+                        .catch(function (err) {
+                            res.status(400).send(err);
+                        });
+                })
+                .catch(function (err) {
+                    res.status(400).send(err);
+                });
         }
     });
 

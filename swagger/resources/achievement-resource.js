@@ -13,7 +13,7 @@ module.exports = function (swagger) {
     // Get achievement information
     swagger.addGet({
         'spec': {
-            nickname: 'getDreamInfo',
+            nickname: 'getAchievementInfo',
             path: '/achievement',
             summary: 'Get the information of a given achievement',
             notes: 'Return a achievement based on id',
@@ -21,26 +21,26 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             type: 'Achievement',
             parameters: [
-                param.query('sessionId', 'Session unique identifier', 'integer', true),
-                param.query('achievementId', 'Achievement unique identifier', 'integer', true)
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('achievement_id', 'Achievement unique identifier', 'integer', true)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.sessionId)
-                throw raise.notFound('sessionId');
-            if (!req.query.achievementId)
-                throw raise.notFound('achievementId');
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.achievement_id)
+                throw raise.notFound('achievement_id');
 
             Session
-                .find({ where: { id: req.query.sessionId }})
+                .find({ where: { id: req.query.session_id }})
                 .then(function (session) {
                     if (!session)
-                        throw raise.invalid('sessionId');
+                        throw raise.invalid('session_id');
                     Achievement
-                        .find({ where: { id: req.query.achievementId }})
+                        .find({ where: { id: req.query.achievement_id }})
                         .then(function (achievement) {
                             if (!achievement)
-                                throw raise.invalid('achievementId');
+                                throw raise.invalid('achievement_id');
                             res.status(200).send(achievement);
                         })
                         .catch(function (err) {
@@ -79,7 +79,7 @@ module.exports = function (swagger) {
                 .find({ where: { id: req.body.session_id }})
                 .then(function (session) {
                     if (!session)
-                        throw raise.invalid('sessionId');
+                        throw raise.invalid('session_id');
                     Dream
                         .find({ where: { id: req.body.dream_id }})
                         .then(function (dream) {
@@ -112,7 +112,7 @@ module.exports = function (swagger) {
         }
     });
 
-    // Delete a achievement
+    // Delete an achievement
     swagger.addDelete({
         'spec': {
             nickname: 'deleteAchievement',

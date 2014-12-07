@@ -82,8 +82,6 @@ module.exports = function (swagger) {
                 });
         }
     });
-    
-    
 
     swagger.configureDeclaration('admin', {
         description : 'Operations for Admin / Testing',

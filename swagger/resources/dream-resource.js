@@ -20,26 +20,26 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             type: 'Dream',
             parameters: [
-                param.query('sessionId', 'Session unique identifier', 'integer', true),
-                param.query('dreamId', 'Dream unique identifier', 'integer', true)
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('dream_id', 'Dream unique identifier', 'integer', true)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.sessionId)
-                throw raise.notFound('sessionId');
-            if (!req.query.dreamId)
-                throw raise.notFound('dreamId');
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.dream_id)
+                throw raise.notFound('dream_id');
 
             Session
-                .find({ where: { id: req.query.sessionId }})
+                .find({ where: { id: req.query.session_id }})
                 .then(function (session) {
                     if (!session)
-                        throw raise.invalid('sessionId');
+                        throw raise.invalid('session_id');
                     Dream
-                        .find({ where: { id: req.query.dreamId }})
+                        .find({ where: { id: req.query.dream_id }})
                         .then(function (dream) {
                             if (!dream)
-                                throw raise.invalid('dreamId');
+                                throw raise.invalid('dream_id');
                             if (dream.user_id != session.user_id)
                                 throw { code: 400, message: 'Unauthorized request!' }
                             res.status(200).send(dream);

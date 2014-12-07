@@ -117,17 +117,20 @@ Hashtag.hasMany(DreamComment);
 Hashtag.hasMany(Achievement);
 Hashtag.hasMany(AchievementComment);
 
+User.hasMany(User, { as: 'Following' });
+User.hasMany(User, { as: 'Follower' });
+
 /* Execute */
 
 client
-.sync({ force: global.resetDb })
-.complete(function (err) {
-    if (err) {
-        console.log('An error occurred while creating the table:', err)
-    } else {
-        console.log('It worked!')
-    }
-});
+    .sync({ force: global.resetDb })
+    .complete(function (err) {
+        if (err) {
+            console.log('An error occurred while creating the table:', err)
+        } else {
+            console.log('It worked!')
+        }
+    });
 
 /* Exports */
 
