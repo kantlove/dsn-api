@@ -1,5 +1,6 @@
-var lib = require('../lib'),
-    db  = require('../database');
+var lib   = require('../lib'),
+    db    = require('../database'),
+    utils = require('./_utils');
 
 var param = lib.params,
     raise = lib.errors;
@@ -9,6 +10,7 @@ var User    = db.models.User,
     Dream   = db.models.Dream;
 
 module.exports = function (swagger) {
+
     // Get user information
     swagger.addGet({
         'spec': {
@@ -30,24 +32,19 @@ module.exports = function (swagger) {
             if (!req.query.user_id)
                 throw raise.notFound('user_id');
 
-            Session
-                .find({ where: { id: req.query.session_id }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('session_id');
-                    User.find({ where: { id: req.query.user_id }})
-                        .then(function (user) {
-                            if (!user)
-                                throw raise.invalid('user_id');
-                            res.status(200).send(user);
-                        })
-                        .catch(function (err) {
-                            res.status(400).send(err);
-                        });
+            utils
+                .queryUserBySessionId(req.query.session_id)
+                .then(function (user) {
+                    var other = utils.queryUserByUserId(req.query.user_id).value();
+                    throw raise.success({
+                        id: other.id,
+                        username: other.username,
+                        fullname: other.fullname
+                    });
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
-                })
+                    raise.send(err, res);
+                });
         }
     });
 
@@ -81,13 +78,10 @@ module.exports = function (swagger) {
 
             User.create(req.body)
                 .then(function (user) {
-                    res.status(200).send({
-                        result: 'success',
-                        user_id: user.id
-                    });
+                    raise.success({ user_id: user.id }, res);
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
+                    raise.send(err, res);
                 });
         }
     });
@@ -112,140 +106,127 @@ module.exports = function (swagger) {
             if (!req.body.user_id)
                 throw raise.notFound('user_id');
 
-            Session
-                .find({ where: { id: req.body.session_id }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('session_id');
-                    User.find({ where: { id: req.body.user_id }})
-                        .then(function (user) {
-                            if (!user)
-                                throw raise.invalid('user_id');
-                            if (session.user_id != user.id)
-                                throw { err: 400, message: 'Unauthorized request!' }
-                            user.destroy()
-                                .then(function () {
-                                    res.status(200).send(null);
-                                })
-                                .catch(function (err) {
-                                    res.status(400).send(err);
-                                });
-                        })
-                        .catch(function (err) {
-                            res.status(400).send(err);
+            utils
+                .queryUserBySessionId(req.body.session_id)
+                .then(function (user) {
+                    if (user.id != req.body.user_id)
+                        throw raise.unauthorized();
+                    user.destroy()
+                        .then(function () {
+                            throw raise.success();
                         });
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
+                    raise.send(err, res);
                 });
         }
     });
     
     // Get all dreams of user
-    swagger.addGet({
-        'spec': {
-            nickname: 'getAllDreamsOfUser',
-            path:'/user/dreams',
-            summary: 'Get all dreams of a user',
-            notes: 'Return dreams from user_id',
-            method: 'GET',
-            produces: ['application/json'],
-            type: 'array',
-            items: {
-                $ref: 'Dream'
-            },
-            parameters: [
-                param.query('session_id', 'Session unique identifier', 'integer', true),
-                param.query('user_id', 'User unique identifier', 'integer', true),
-                param.query('offset', 'The number of dreams you want to skip', 'integer', false),
-                param.query('limit', 'The number of dreams you want to get', 'integer', false)
-            ]
-        },
-        'action': function (req, res) {
-            if (!req.query.session_id)
-                throw raise.notFound('session_id');
-            if (!req.query.user_id)
-                throw raise.notFound('user_id');
-            var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
+    // swagger.addGet({
+    //     'spec': {
+    //         nickname: 'getAllDreamsOfUser',
+    //         path:'/user/dreams',
+    //         summary: 'Get all dreams of a user',
+    //         notes: 'Return dreams from user_id',
+    //         method: 'GET',
+    //         produces: ['application/json'],
+    //         type: 'array',
+    //         items: {
+    //             $ref: 'Dream'
+    //         },
+    //         parameters: [
+    //             param.query('session_id', 'Session unique identifier', 'integer', true),
+    //             param.query('user_id', 'User unique identifier', 'integer', true),
+    //             param.query('offset', 'The number of dreams you want to skip', 'integer', false),
+    //             param.query('limit', 'The number of dreams you want to get', 'integer', false)
+    //         ]
+    //     },
+    //     'action': function (req, res) {
+    //         if (!req.query.session_id)
+    //             throw raise.notFound('session_id');
+    //         if (!req.query.user_id)
+    //             throw raise.notFound('user_id');
+    //         var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
  
-            Dream
-                .findAll({
-                    where: { user_id: req.query.user_id },
-                    offset: offset,
-                    limit: limit
-                }).then(function (dreams) {
-                    res.status(200).send(dreams);
-                })
-                .catch(function(err) {
-                    res.status(400).send(err);
-                });
-        }
-    });
+    //         Dream
+    //             .findAll({
+    //                 where: { user_id: req.query.user_id },
+    //                 offset: offset,
+    //                 limit: limit
+    //             }).then(function (dreams) {
+    //                 res.status(200).send(dreams);
+    //             })
+    //             .catch(function(err) {
+    //                 res.status(400).send(err);
+    //             });
+    //     }
+    // });
 
     // Follow a user
-    swagger.addPost({
-        'spec': {
-            nickname: 'followUser',
-            path: '/user/follow',
-            summary: 'Follow another user from the given data',
-            notes: 'Follow another user',
-            method: 'POST',
-            produces : ['application/json'],
-            parameters: [
-                param.body('body', 'An object that describe the follow request', 'FollowPost', JSON.stringify({
-                    session_id: 'session_id',
-                    user_id: 'user_id'
-                }, null, 4))
-            ]
-        },
-        'action': function (req, res) {
-            if (!req.body.session_id)
-                throw raise.notFound('session_id');
-            if (!req.body.user_id)
-                throw raise.notFound('user_id');
+    // swagger.addPost({
+    //     'spec': {
+    //         nickname: 'followUser',
+    //         path: '/user/follow',
+    //         summary: 'Follow another user from the given data',
+    //         notes: 'Follow another user',
+    //         method: 'POST',
+    //         produces : ['application/json'],
+    //         parameters: [
+    //             param.body('body', 'An object that describe the follow request', 'FollowPost', JSON.stringify({
+    //                 session_id: 'session_id',
+    //                 user_id: 'user_id'
+    //             }, null, 4))
+    //         ]
+    //     },
+    //     'action': function (req, res) {
+    //         if (!req.body.session_id)
+    //             throw raise.notFound('session_id');
+    //         if (!req.body.user_id)
+    //             throw raise.notFound('user_id');
 
-            Session
-                .find({ where: { id: req.body.session_id }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('session_id');
-                    User.find({ where: { id: session.user_id }})
-                        .then(function (userA) {
-                            if (!userA)
-                                throw raise.invalid('user_id of session_id');
-                            User.find({ where : { id: req.body.user_id }})
-                                .then(function (userB) {
-                                    if (!userB)
-                                        throw raise.invalid('user_id');
-                                    userA
-                                        .addFollowing(userB)
-                                        .then(function () {
-                                            userB
-                                                .addFollower(userA)
-                                                .then(function () {
-                                                    res.status(200).send(null);
-                                                })
-                                                .catch(function (err) {
-                                                    res.status(400).send(err);
-                                                });
-                                        })
-                                        .catch(function (err) {
-                                            res.status(400).send(err);
-                                        });
-                                })
-                                .catch(function (err) {
-                                    res.status(400).send(err);
-                                });
-                        })
-                        .catch(function (err) {
-                            res.status(400).send(err);
-                        });
-                })
-                .catch(function (err) {
-                    res.status(400).send(err);
-                });
-        }
-    });
+    //         Session
+    //             .find({ where: { id: req.body.session_id }})
+    //             .then(function (session) {
+    //                 if (!session)
+    //                     throw raise.invalid('session_id');
+    //                 User.find({ where: { id: session.user_id }})
+    //                     .then(function (userA) {
+    //                         if (!userA)
+    //                             throw raise.invalid('user_id of session_id');
+    //                         User.find({ where : { id: req.body.user_id }})
+    //                             .then(function (userB) {
+    //                                 if (!userB)
+    //                                     throw raise.invalid('user_id');
+    //                                 userA
+    //                                     .addFollowing(userB)
+    //                                     .then(function () {
+    //                                         userB
+    //                                             .addFollower(userA)
+    //                                             .then(function () {
+    //                                                 res.status(200).send(null);
+    //                                             })
+    //                                             .catch(function (err) {
+    //                                                 res.status(400).send(err);
+    //                                             });
+    //                                     })
+    //                                     .catch(function (err) {
+    //                                         res.status(400).send(err);
+    //                                     });
+    //                             })
+    //                             .catch(function (err) {
+    //                                 res.status(400).send(err);
+    //                             });
+    //                     })
+    //                     .catch(function (err) {
+    //                         res.status(400).send(err);
+    //                     });
+    //             })
+    //             .catch(function (err) {
+    //                 res.status(400).send(err);
+    //             });
+    //     }
+    // });
 
     swagger.configureDeclaration('user', {
         description : 'Operations about Users',

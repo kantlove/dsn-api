@@ -23,8 +23,8 @@ module.exports = {
         }
     },
 
-    // Session
-    "SessionPost": {
+    // Session for testing
+    "SessionPost1": {
         "id": "SessionPost",
         "required": ["user_id"],
         "properties": {
@@ -46,7 +46,7 @@ module.exports = {
             },
             "password": {
                 "type": "string",
-                "description": "User's password"
+                "description": "Password"
             }
         }
     },

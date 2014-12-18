@@ -1,5 +1,6 @@
 var lib       = require('../lib'),
     db        = require('../database'),
+    utils     = require('./_utils'),
     moment    = require('moment'),
     sequelize = require('sequelize');
 
@@ -10,6 +11,7 @@ var User    = db.models.User,
     Session = db.models.Session;
 
 module.exports = function (swagger) {
+
     // Get session information
     swagger.addGet({
         'spec': {
@@ -28,56 +30,57 @@ module.exports = function (swagger) {
             if (!req.query.session_id)
                 throw raise.notFound('session_id');
 
-            Session
-            .find({ where: { id: req.query.session_id }})
-            .then(function (session) {
-                if (!session)
-                    throw raise.invalid('session_id');
-                res.status(200).send(session);
-            })
-            .catch(function (err) {
-                res.status(400).send(err);
-            })
+            utils
+                .querySessionBySessionId(req.query.session_id)
+                .then(function (session) {
+                    throw raise.success(session);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
         }
     });
 
-    // Create a new session
+    // Create a new session (for testing only)
     swagger.addPost({
         'spec': {
             nickname: 'createSession',
             path: '/session',
-            summary: 'Create a new session from a given data',
+            summary: 'Create a new session from a given data (for testing only)',
             notes: 'Create a new session',
             method: 'POST',
             produces : ['application/json'],
             parameters: [
                 param.body('body', 'Contains all required information to create a new session',
-                           'SessionPost', JSON.stringify({ user_id: '0' }, null, 4))
+                           'SessionPost1', JSON.stringify({ user_id: '0' }, null, 4))
             ]
         },
         'action': function (req, res) {
             if (!req.body.user_id)
                 throw raise.notFound('user_id');
 
-            Session
-            .create({
-                user_id: req.body.user_id,
-                expire: moment.utc().add(3, 'days').toDate()
-            })
-            .then(function (session) {
-                res.status(200).send({
-                    result: 'success',
-                    session_id: session.id,
-                    expire: session.expire
+            utils
+                .queryUserByUserId(req.body.user_id)
+                .then(function (user) {
+                    Session
+                        .create({
+                            user_id: user.id,
+                            expire: moment.utc().add(3, 'days').toDate()
+                        })
+                        .then(function (session) {
+                            throw raise.success(session);
+                        })
+                        .catch(function (err) {
+                            raise.send(err, res);
+                        });
                 })
-            })
-            .catch(function (err) {
-                res.status(400).send(err);
-            });
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
         }
     });
 
-    // Create session or Sign in with username and password
+    // Sign in
     swagger.addPost({
         'spec': {
             nickname: 'signIn',
@@ -88,44 +91,36 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             parameters: [
                 param.body('body', 'Contains all required information to create a new session',
-                           'SessionPost2', JSON.stringify({email: 'email', username: 'username', password: 'password'}, null, 4))
+                           'SessionPost2', JSON.stringify({ username: 'username', password: 'password' }, null, 4))
             ]
         },
         'action': function (req, res) {
-            if (!req.body.username && !req.body.email)
-                throw raise.notFound('username || email');
+            if (!req.body.username)
+                throw raise.notFound('username');
             if (!req.body.password)
                 throw raise.notFound('password');
 
-            var result = false;
-            // check the user info
-            User
-            .find({where: sequelize.or({username: req.body.username}, {email: req.body.email})})
-            .then(function (user) {
-                if (user.password == req.body.password) {
-                    Session
-                    .create({
+            User.find({ username: req.body.username })
+                .then(function (user) {
+                    if (!user)
+                        throw raise.invalid('username');
+                    if (user.password != req.body.password)
+                        throw raise.invalid('password');
+
+                    Session.create({
                         user_id: user.id,
                         expire: moment.utc().add(3, 'days').toDate()
                     })
                     .then(function (session) {
-                        res.status(200).send({
-                            result: 'success',
-                            session_id: session.id,
-                            expire: session.expire
-                        })
+                        throw raise.success(session);
                     })
                     .catch(function (err) {
-                        res.status(400).send(err);
+                        raise.send(err, res);
                     });
-                }
-                else {
-                    res.status(400).send({message: 'Invalid password!'});
-                }
-            })
-            .catch(function(err) {
-                res.status(400).send({message: 'Username not found!'});  // user not found
-            });
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
         }
     });
 

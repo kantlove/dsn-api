@@ -110,13 +110,12 @@ AchievementComment.hasMany(Hashtag);
 AchievementComment.belongsTo(User);
 AchievementComment.belongsTo(Achievement);
 
-Session.belongsTo(User);
-
 Hashtag.hasMany(Dream);
 Hashtag.hasMany(DreamComment);
 Hashtag.hasMany(Achievement);
 Hashtag.hasMany(AchievementComment);
 
+User.hasMany(Session);
 User.hasMany(User, { as: 'Following' });
 User.hasMany(User, { as: 'Follower' });
 
