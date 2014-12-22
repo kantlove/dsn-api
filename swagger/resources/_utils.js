@@ -43,6 +43,16 @@ module.exports.queryUserBySessionId = function (session_id) {
         });
 }
 
+module.exports.queryDreamByDreamId = function (dream_id) {
+    return Dream
+        .find({ where: { id: dream_id } })
+        .then(function (dream) {
+            if (!dream)
+            throw raise.invalid('dream_id');
+            return dream;
+        });
+}
+
 module.exports.checkConnectionById = function (idA, idB) {
     if (idA == idB) {
         return false;

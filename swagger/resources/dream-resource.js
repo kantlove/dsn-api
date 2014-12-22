@@ -1,5 +1,7 @@
-var lib = require('../lib'),
-    db  = require('../database');
+var lib     = require('../lib'),
+    db      = require('../database'),
+    utils   = require('./_utils'),
+    Promise = require('bluebird');
 
 var param = lib.params,
     raise = lib.errors;
@@ -9,6 +11,7 @@ var User    = db.models.User,
     Session = db.models.Session;
 
 module.exports = function (swagger) {
+
     // Get dream information
     swagger.addGet({
         'spec': {
@@ -30,26 +33,16 @@ module.exports = function (swagger) {
             if (!req.query.dream_id)
                 throw raise.notFound('dream_id');
 
-            Session
-                .find({ where: { id: req.query.session_id }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('session_id');
-                    Dream
-                        .find({ where: { id: req.query.dream_id }})
-                        .then(function (dream) {
-                            if (!dream)
-                                throw raise.invalid('dream_id');
-                            if (dream.user_id != session.user_id)
-                                throw { code: 400, message: 'Unauthorized request!' }
-                            res.status(200).send(dream);
-                        })
-                        .catch(function (err) {
-                            res.status(400).send(err);
-                        });
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.query.session_id),
+                    utils.queryDreamByDreamId(req.query.dream_id)
+                ])
+                .spread(function (user, dream) {
+                    throw raise.success(dream);
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
+                    raise.end(err, res);
                 })
         }
     });
@@ -74,27 +67,21 @@ module.exports = function (swagger) {
             if (!req.body.text)
                 throw raise.notFound('text');
 
-            Session
-                .find({ where: { id: req.body.session_id }})
-                .then(function (session) {
-                    Dream
+            utils
+                .queryUserBySessionId(req.body.session_id)
+                .then(function (user) {
+                    return Dream
                         .create({
-                            user_id: session.user_id,
+                            user_id: user.id,
                             text: req.body.text
-                        })
-                        .then(function (dream) {
-                            res.status(200).send({
-                                result: 'success',
-                                dream_id: dream.id
-                            })
-                        })
-                        .catch(function (err) {
-                            res.status(400).send(err);
-                        })
+                        });
+                })
+                .then(function (dream) {
+                    throw raise.success({ dream_id: dream.id });
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
-                });
+                    raise.send(err, res);
+                })
         }
     });
 
@@ -118,31 +105,22 @@ module.exports = function (swagger) {
             if (!req.body.dream_id)
                 throw raise.notFound('dream_id');
 
-            Session
-                .find({ where: { id: req.body.session_id }})
-                .then(function (session) {
-                    if (!session)
-                        throw raise.invalid('session_id');
-                    Dream
-                        .find({ where: { id: req.body.dream_id }})
-                        .then(function (dream) {
-                            if (!dream)
-                                throw raise.invalid('dream_id');
-                            if (session.user_id != dream.user_id)
-                                throw { err: 400, message: 'Unauthorized request!' }
-                            dream
-                                .destroy()
-                                .then(function () {
-                                    res.status(200).send(null);
-                                })
-                                .catch(function (err) {
-                                    res.status(400).send(err);
-                                });
-                        });
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryDreamByDreamId(req.body.dream_id)
+                ])
+                .spread(function (user, dream) {
+                    if (user.id != dream.id)
+                        throw raise.unauthorized();
+                    return dream.destroy();
+                })
+                .then(function () {
+                    throw raise.success({ result: true });
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
-                });
+                    raise.send(err, res);
+                })
         }
     });
 
