@@ -45,5 +45,21 @@ module.exports = {
                 "description": "Achievement unique identifier"
             }
         }
+    },
+
+    // Unfollow
+    "Unfollow": {
+        "id": "Unfollow",
+        "required": ["session_id", "user_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "user_id": {
+                "type": "int",
+                "description": "User unique identifier"
+            }
+        }
     }
 }

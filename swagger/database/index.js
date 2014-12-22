@@ -15,7 +15,7 @@ var configFile = global.localDb ? 'config-local.json' : 'config-server.json';
 var config = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, configFile), 'utf8'));
 var connectionString =
     config.dialect + '://' + config.username + ':' + config.password
-+ '@' + config.host + ':' + config.port + '/' + config.database;
+        + '@' + config.host + ':' + config.port + '/' + config.database;
 
 /* Create a new client */
 var sequelize = require("sequelize");
@@ -84,6 +84,11 @@ var Hashtag = client.define('Hashtag', {
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
+var Relationship = client.define('Relationship', {
+    following: { type: sequelize.INTEGER, allowNull: false },
+    follower: { type: sequelize.INTEGER, allowNull: false }
+});
+
 /* Relations */
 
 Dream.belongsTo(User);
@@ -116,8 +121,6 @@ Hashtag.hasMany(Achievement);
 Hashtag.hasMany(AchievementComment);
 
 User.hasMany(Session);
-User.hasMany(User, { as: 'Following' });
-User.hasMany(User, { as: 'Follower' });
 
 /* Execute */
 
@@ -143,5 +146,6 @@ module.exports.models = {
     AchievementLike: AchievementLike,
     AchievementComment: AchievementComment,
     Session: Session,
-    Hashtag: Hashtag
+    Hashtag: Hashtag,
+    Relationship: Relationship
 }
