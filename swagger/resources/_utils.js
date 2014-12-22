@@ -7,6 +7,7 @@ var raise = lib.errors;
 var User         = db.models.User,
     Session      = db.models.Session,
     Dream        = db.models.Dream,
+    Achievement  = db.models.Achievement,
     Relationship = db.models.Relationship;
 
 module.exports.queryUserByUserId = function (user_id) {
@@ -48,9 +49,32 @@ module.exports.queryDreamByDreamId = function (dream_id) {
         .find({ where: { id: dream_id } })
         .then(function (dream) {
             if (!dream)
-            throw raise.invalid('dream_id');
+                throw raise.invalid('dream_id');
             return dream;
         });
+}
+
+module.exports.queryDreamByAchievementId = function (achievement_id) {
+    return this.queryAchievementByAchievementId(achievement_id)
+        .then(function (achievement) {
+            return Dream
+                .find({ where: { id: dream_id } })
+                .then(function (dream) {
+                    if (!dream)
+                        throw raise.invalid('dream_id');
+                    return dream;
+                });
+        });
+}
+
+module.exports.queryAchievementByAchievementId = function (achievement_id) {
+    return Achievement
+        .find({ where: { id: achievement_id} })
+        .then(function (achievement) {
+            if (!achievement)
+                throw raise.invalid('achievement_id');
+            return achievement;
+        })
 }
 
 module.exports.checkConnectionById = function (idA, idB) {
