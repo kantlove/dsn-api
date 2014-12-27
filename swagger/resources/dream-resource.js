@@ -42,8 +42,8 @@ module.exports = function (swagger) {
                     throw raise.success(dream);
                 })
                 .catch(function (err) {
-                    raise.end(err, res);
-                })
+                    raise.send(err, res);
+                });
         }
     });
 
@@ -81,7 +81,7 @@ module.exports = function (swagger) {
                 })
                 .catch(function (err) {
                     raise.send(err, res);
-                })
+                });
         }
     });
 
@@ -120,7 +120,7 @@ module.exports = function (swagger) {
                 })
                 .catch(function (err) {
                     raise.send(err, res);
-                })
+                });
         }
     });
 

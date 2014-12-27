@@ -100,7 +100,7 @@ module.exports = function (swagger) {
             if (!req.body.password)
                 throw raise.notFound('password');
 
-            User.find({ username: req.body.username })
+            User.find({ where: { username: req.body.username } })
                 .then(function (user) {
                     if (!user)
                         throw raise.invalid('username');
