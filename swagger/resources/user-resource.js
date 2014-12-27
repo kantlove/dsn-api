@@ -259,6 +259,54 @@ module.exports = function (swagger) {
         }
     });
 
+    // Get news feed
+    swagger.addGet({
+        'spec': {
+            nickname: 'getNewsFeed',
+            path:'/user/newsfeed',
+            summary: 'Get news feed of a user',
+            notes: 'Return a list of dreams',
+            method: 'GET',
+            produces: ['application/json'],
+            type: 'array',
+            items: {
+                $ref: 'Dream'
+            },
+            parameters: [
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('offset', 'The number of dreams you want to skip', 'integer', false),
+                param.query('limit', 'The number of dreams you want to get', 'integer', false)
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
+            
+            utils
+                .queryUserBySessionId(require.query.session_id)
+                .then(function (user) {
+                    return Relationship.findAll({ where: { following: user.id } });
+                })
+                .then(function (users) {
+                    var user_ids = [];
+                    for (var user in users)
+                        user_ids.push(user.id);
+                    return Dream.findAll({
+                        where: { user_id: user_ids },
+                        offset: offset,
+                        limit: limit
+                    });
+                })
+                .then(function (dreams) {
+                    throw raise.success(dreams);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
     swagger.configureDeclaration('user', {
         description : 'Operations about Users',
         produces: ['application/json']
