@@ -205,7 +205,7 @@ module.exports = function (swagger) {
             method: 'DELETE',
             produces : ['application/json'],
             parameters: [
-                param.body('body', 'Achievement like object that need to be added', 'AchievementUnlike',
+                param.body('body', 'Achievement like object that need to be removed', 'AchievementUnlike',
                     JSON.stringify({ session_id: '0', achievement_id: '0' }, null, 4))
             ]
         },
@@ -283,6 +283,45 @@ module.exports = function (swagger) {
                 })
                 .then(function (achievementComment) {
                     throw raise.success(achievementComment);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
+    // Delete an comment
+    swagger.addDelete({
+        'spec': {
+            nickname: 'deleteAchievementComment',
+            path: '/achievement/comment',
+            summary: 'Delete an achievement comment from a given data',
+            notes: 'Delete an achievement comment like',
+            method: 'DELETE',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Achievement comment object that need to be removed', 'AchievementCommentDelete',
+                    JSON.stringify({ session_id: '0', achievement_comment_id: '0' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.achievement_comment_id)
+                throw raise.notFound('achievement_comment_id');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    AchievementComment.find({ where: { id: req.body.achievement_comment_id } })
+                ])
+                .spread(function (user, achievementComment) {
+                    if (user.id != achievementComment.user_id)
+                        throw raise.unauthorized();
+                    return dream.destroy();
+                })
+                .then(function () {
+                    throw raise.success({ result: true });
                 })
                 .catch(function (err) {
                     raise.send(err, res);

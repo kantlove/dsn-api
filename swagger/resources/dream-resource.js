@@ -195,7 +195,7 @@ module.exports = function (swagger) {
             method: 'DELETE',
             produces : ['application/json'],
             parameters: [
-                param.body('body', 'Dream like object that need to be added', 'DreamUnlike',
+                param.body('body', 'Dream like object that need to be removed', 'DreamUnlike',
                     JSON.stringify({ session_id: '0', dream_id: '0' }, null, 4))
             ]
         },
@@ -273,6 +273,45 @@ module.exports = function (swagger) {
                 })
                 .then(function (dreamComment) {
                     throw raise.success(dreamComment);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
+    // Delete an comment
+    swagger.addDelete({
+        'spec': {
+            nickname: 'deleteDreamComment',
+            path: '/dream/comment',
+            summary: 'Delete a dream comment from a given data',
+            notes: 'Delete a dream comment like',
+            method: 'DELETE',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Dream comment object that need to be removed', 'DreamCommentDelete',
+                    JSON.stringify({ session_id: '0', dream_comment_id: '0' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.dream_comment_id)
+                throw raise.notFound('dream_comment_id');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    DreamComment.find({ where: { id: req.body.dream_comment_id } })
+                ])
+                .spread(function (user, dreamComment) {
+                    if (user.id != dreamComment.user_id)
+                        throw raise.unauthorized();
+                    return dream.destroy();
+                })
+                .then(function () {
+                    throw raise.success({ result: true });
                 })
                 .catch(function (err) {
                     raise.send(err, res);

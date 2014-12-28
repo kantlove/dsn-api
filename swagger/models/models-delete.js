@@ -93,5 +93,37 @@ module.exports = {
                 "description": "Unique identifier of the achievement who user want to like"
             }
         }
+    },
+
+    // DreamCommentDelete
+    "DreamCommentDelete": {
+        "id": "DreamCommentDelete",
+        "required": ["session_id", "dream_comment_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_comment_id": {
+                "type": "int",
+                "description": "Dream comment unique identifier"
+            }
+        }
+    },
+
+    // AchievementCommentDelete
+    "AchievementCommentDelete": {
+        "id": "AchievementCommentDelete",
+        "required": ["session_id", "achievement_comment_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_comment_id": {
+                "type": "int",
+                "description": "Achievement comment unique identifier"
+            }
+        }
     }
 }
