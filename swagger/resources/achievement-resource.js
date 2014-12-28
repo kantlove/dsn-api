@@ -247,6 +247,49 @@ module.exports = function (swagger) {
         }
     });
 
+    // Post a new comment
+    swagger.addPost({
+        'spec': {
+            nickname: 'addAchievementComment',
+            path: '/achievement/comment',
+            summary: 'Create a new achievement comment from a given data',
+            notes: 'Create a new achievement comment',
+            method: 'POST',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Achievement comment object that need to be added', 'AchievementCommentPost',
+                    JSON.stringify({ session_id: '0', achievement_id: '0', text: 'text' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.achievement_id)
+                throw raise.notFound('achievement_id');
+            if (!req.body.text)
+                throw raise.notFound('text');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryDreamByDreamId(req.body.achievement_id)
+                ])
+                .spread(function (user, dream) {
+                    return AchievementComment.create({
+                        user_id: user.id,
+                        achievement_id: dream.id,
+                        text: text
+                    });
+                })
+                .then(function (achievementComment) {
+                    throw raise.success(achievementComment);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
     swagger.configureDeclaration('achievement', {
         description : 'Operations about Achievements',
         produces: ['application/json']

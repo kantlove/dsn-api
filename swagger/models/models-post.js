@@ -149,5 +149,45 @@ module.exports = {
                 "description": "Unique identifier of the achievement who user want to like"
             }
         }
+    },
+
+    // DreamCommentPost
+    "DreamCommentPost": {
+        "id": "DreamCommentPost",
+        "required": ["session_id", "dream_id", "text"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            },
+            "text": {
+                "type": "string",
+                "description": "Content of the comment"
+            }
+        }
+    },
+
+    // AchievementCommentPost
+    "AchievementCommentPost": {
+        "id": "AchievementCommentPost",
+        "required": ["session_id", "achievement_id", "text"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            },
+            "text": {
+                "type": "string",
+                "description": "Content of the comment"
+            }
+        }
     }
 }

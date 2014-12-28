@@ -237,6 +237,49 @@ module.exports = function (swagger) {
         }
     });
 
+    // Post a new comment
+    swagger.addPost({
+        'spec': {
+            nickname: 'addDreamComment',
+            path: '/dream/comment',
+            summary: 'Create a new dream comment from a given data',
+            notes: 'Create a new dream comment',
+            method: 'POST',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Dream comment object that need to be added', 'DreamCommentPost',
+                    JSON.stringify({ session_id: '0', dream_id: '0', text: 'text' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.dream_id)
+                throw raise.notFound('dream_id');
+            if (!req.body.text)
+                throw raise.notFound('text');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryDreamByDreamId(req.body.dream_id)
+                ])
+                .spread(function (user, dream) {
+                    return DreamComment.create({
+                        user_id: user.id,
+                        dream_id: dream.id,
+                        text: text
+                    });
+                })
+                .then(function (dreamComment) {
+                    throw raise.success(dreamComment);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
     swagger.configureDeclaration('dream', {
         description : 'Operations about Dreams',
         produces: ['application/json']
