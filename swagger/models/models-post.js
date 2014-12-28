@@ -114,8 +114,40 @@ module.exports = {
             },
             "user_id": {
                 "type": "int",
-                "description": "Unique identifier of the tser who you want to follow"
+                "description": "Unique identifier of the user who you want to follow"
             }
         }
-    }
+    },
+
+    // DreamLikePost
+    "DreamLikePost": {
+        "id": "DreamLikePost",
+        "required": ["session_id", "dream_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            }
+        }
+    },
+
+    // AchievementLikePost
+    "AchievementLikePost": {
+        "id": "AchievementLikePost",
+        "required": ["session_id", "achievement_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_id": {
+                "type": "int",
+                "description": "Unique identifier of the achievement who user want to like"
+            }
+        }
+    },
 }

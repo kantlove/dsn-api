@@ -1,15 +1,18 @@
 var lib     = require('../lib'),
     db      = require('../database'),
     utils   = require('./_utils'),
-    Promise = require('bluebird');
+    Promise = require('bluebird'),
+    sequelize = require("sequelize");
 
 var param = lib.params,
     raise = lib.errors;
 
-var User        = db.models.User,
-    Dream       = db.models.Dream,
-    Achievement = db.models.Achievement,
-    Session     = db.models.Session;
+var User               = db.models.User,
+    Dream              = db.models.Dream,
+    Achievement        = db.models.Achievement,
+    Session            = db.models.Session,
+    AchievementLike    = db.models.AchievementLike,
+    AchievementComment = db.models.AchievementComment;
 
 module.exports = function (swagger) {
 
@@ -127,6 +130,64 @@ module.exports = function (swagger) {
                         .then(function() {
                             throw raise.success({ result: true });
                         });
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
+    // Post a new like
+    swagger.addPost({
+        'spec': {
+            nickname: 'addAchievementLike',
+            path: '/achievement/like',
+            summary: 'Create a new achievement like from a given data',
+            notes: 'Create a new achievement like',
+            method: 'POST',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Achievement like object that need to be added', 'AchievementLikePost',
+                    JSON.stringify({ session_id: '0', achievement_id: '0' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.achievement_id)
+                throw raise.notFound('achievement_id');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryAchievementByAchievementId(req.body.achievement_id)
+                ])
+                .spread(function (user, achievement) {
+                    return Promise.all([
+                        user, achievement,
+                        AchievementLike.find({
+                            where: sequelize.and(
+                                { user_id: user.id },
+                                { achievement_id: achievement.id }
+                            )})
+                    ]);
+                })
+                .spread(function (user, dream, achievementLike) {
+                    if (!achievementLike) {
+                        return AchievementLike.create({
+                            user_id: user.id,
+                            achievement_id: achievement.id
+                        });
+                    } else {
+                        if (!achievementLike.value) {
+                            achievementLike.value = true;
+                            achievementLike.save();
+                        }
+                        return achievementLike;
+                    }
+                })
+                .then(function (achievementLike) {
+                    throw raise.success(achievementLike);
                 })
                 .catch(function (err) {
                     raise.send(err, res);

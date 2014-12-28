@@ -57,10 +57,12 @@ var Dream = client.define('Dream', {
 }, { underscored: true });
 
 var DreamLike = client.define('DreamLike', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 }, { underscored: true });
 
 var DreamComment = client.define('DreamComment', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
@@ -69,10 +71,12 @@ var Achievement = client.define('Achievement', {
 }, { underscored: true });
 
 var AchievementLike = client.define('AchievementLike', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 }, { underscored: true });
 
 var AchievementComment = client.define('AchievementComment', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
@@ -97,23 +101,18 @@ Dream.hasMany(DreamLike, { as: 'Likes'});
 Dream.hasMany(DreamComment, { as: 'Comments' });
 Dream.hasMany(Hashtag);
 
-DreamLike.belongsTo(User);
 DreamLike.belongsTo(Dream);
-
-DreamComment.hasMany(Hashtag);
-DreamComment.belongsTo(User);
 DreamComment.belongsTo(Dream);
 
 Achievement.hasMany(AchievementLike, { as: 'Likes' });
 Achievement.hasMany(AchievementComment, { as: 'Comments' });
 Achievement.hasMany(Hashtag);
 
-AchievementLike.belongsTo(User);
 AchievementLike.belongsTo(Achievement);
-
-AchievementComment.hasMany(Hashtag);
-AchievementComment.belongsTo(User);
 AchievementComment.belongsTo(Achievement);
+
+DreamComment.hasMany(Hashtag);
+AchievementComment.hasMany(Hashtag);
 
 Hashtag.hasMany(Dream);
 Hashtag.hasMany(DreamComment);

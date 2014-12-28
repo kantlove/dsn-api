@@ -286,14 +286,19 @@ module.exports = function (swagger) {
             utils
                 .queryUserBySessionId(req.query.session_id)
                 .then(function (user) {
-                    return Relationship.findAll({ where: { following: user.id } });
+                    return Promise.all([
+                            user,
+                            Relationship.findAll({ where: { following: user.id } })
+                        ]);
                 })
-                .then(function (users) {
+                .spread(function (user, users) {
                     var user_ids = [];
-                    for (var user in users)
-                        user_ids.push(user.id);
+                    user_ids.push(user.id);
+                    for (var u in users)
+                        user_ids.push(u.id);
                     return Dream.findAll({
                         where: { user_id: user_ids },
+                        order: 'updated_at DESC',
                         offset: offset,
                         limit: limit
                     });
