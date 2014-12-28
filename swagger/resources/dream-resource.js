@@ -185,6 +185,58 @@ module.exports = function (swagger) {
         }
     });
 
+    // Unlike
+    swagger.addDelete({
+        'spec': {
+            nickname: 'deleteDreamLike',
+            path: '/dream/like',
+            summary: 'Delete a dream like from a given data',
+            notes: 'Delete a dream like',
+            method: 'DELETE',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Dream like object that need to be added', 'DreamUnlike',
+                    JSON.stringify({ session_id: '0', dream_id: '0' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.dream_id)
+                throw raise.notFound('dream_id');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryDreamByDreamId(req.body.dream_id)
+                ])
+                .spread(function (user, dream) {
+                    return Promise.all([
+                        user, dream,
+                        DreamLike.find({
+                            where: sequelize.and(
+                                { user_id: user.id },
+                                { dream_id: dream.id }
+                            )})
+                    ]);
+                })
+                .spread(function (user, dream, dreamLike) {
+                    if (!dreamLike) {
+                        throw raise.success({ result: true });
+                    } else {
+                        if (dreamLike.value) {
+                            dreamLike.value = false;
+                            dreamLike.save();
+                        }
+                        throw raise.success({ result: true });
+                    }
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
     swagger.configureDeclaration('dream', {
         description : 'Operations about Dreams',
         produces: ['application/json']

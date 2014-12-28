@@ -61,5 +61,37 @@ module.exports = {
                 "description": "User unique identifier"
             }
         }
+    },
+
+    // DreamUnlike
+    "DreamUnlike": {
+        "id": "DreamUnlike",
+        "required": ["session_id", "dream_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            }
+        }
+    },
+
+    // AchievementUnlike
+    "AchievementUnlike": {
+        "id": "AchievementUnlike",
+        "required": ["session_id", "achievement_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_id": {
+                "type": "int",
+                "description": "Unique identifier of the achievement who user want to like"
+            }
+        }
     }
 }

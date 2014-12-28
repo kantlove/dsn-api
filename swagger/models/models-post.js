@@ -149,5 +149,5 @@ module.exports = {
                 "description": "Unique identifier of the achievement who user want to like"
             }
         }
-    },
+    }
 }

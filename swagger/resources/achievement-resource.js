@@ -195,6 +195,58 @@ module.exports = function (swagger) {
         }
     });
 
+    // Unlike
+    swagger.addDelete({
+        'spec': {
+            nickname: 'deleteAchievementLike',
+            path: '/achievement/like',
+            summary: 'Delete an achievement like from a given data',
+            notes: 'Delete an achievement like',
+            method: 'DELETE',
+            produces : ['application/json'],
+            parameters: [
+                param.body('body', 'Achievement like object that need to be added', 'AchievementUnlike',
+                    JSON.stringify({ session_id: '0', achievement_id: '0' }, null, 4))
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.body.session_id)
+                throw raise.notFound('session_id');
+            if (!req.body.achievement_id)
+                throw raise.notFound('achievement_id');
+
+            Promise
+                .all([
+                    utils.queryUserBySessionId(req.body.session_id),
+                    utils.queryAchievementByAchievementId(req.body.achievement_id)
+                ])
+                .spread(function (user, achievement) {
+                    return Promise.all([
+                        user, achievement,
+                        AchievementLike.find({
+                            where: sequelize.and(
+                                { user_id: user.id },
+                                { achievement_id: achievement.id }
+                            )})
+                    ]);
+                })
+                .spread(function (user, dream, achievementLike) {
+                    if (!achievementLike) {
+                        throw raise.success({ result: true });
+                    } else {
+                        if (achievementLike.value) {
+                            achievementLike.value = false;
+                            achievementLike.save();
+                        }
+                        throw raise.success({ result: true });
+                    }
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
     swagger.configureDeclaration('achievement', {
         description : 'Operations about Achievements',
         produces: ['application/json']
