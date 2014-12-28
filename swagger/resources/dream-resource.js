@@ -42,7 +42,20 @@ module.exports = function (swagger) {
                     utils.queryDreamByDreamId(req.query.dream_id)
                 ])
                 .spread(function (user, dream) {
-                    throw raise.success(dream);
+                    return Promise.all([
+                        dream,
+                        DreamLike.findAll({ where: { dream_id: dream.id } }),
+                        DreamComment.findAll({ where: { dream_id: dream.id } })
+                    ]);
+                })
+                .spread(function (dream, likes, comments) {
+                    throw raise.success({
+                        'dream': dream,
+                        'num_likes': likes.length,
+                        'num_cmts': comments.length,
+                        'likes': likes,
+                        'comments': comments
+                    })
                 })
                 .catch(function (err) {
                     raise.send(err, res);
@@ -268,7 +281,7 @@ module.exports = function (swagger) {
                     return DreamComment.create({
                         user_id: user.id,
                         dream_id: dream.id,
-                        text: text
+                        text: req.body.text
                     });
                 })
                 .then(function (dreamComment) {

@@ -278,7 +278,7 @@ module.exports = function (swagger) {
                     return AchievementComment.create({
                         user_id: user.id,
                         achievement_id: dream.id,
-                        text: text
+                        text: req.body.text
                     });
                 })
                 .then(function (achievementComment) {
