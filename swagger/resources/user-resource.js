@@ -42,7 +42,8 @@ module.exports = function (swagger) {
                 .spread(function (userA, userB) {
                     throw raise.success({
                         id: userB.id,
-                        username: userB.id,
+                        fullname: userB.fullname,
+                        username: userB.username,
                         email: userB.email
                     })
                 })
