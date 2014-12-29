@@ -158,7 +158,7 @@ module.exports = function (swagger) {
                     return Promise.all([userA, userB, utils.checkConnection(userA, userB)])
                 })
                 .spread(function (userA, userB, result) {
-                    if (!result) return false;
+                    if (result) return true;
                     return Relationship
                         .create({
                             following: userA.id,
@@ -202,7 +202,7 @@ module.exports = function (swagger) {
                     return Promise.all([userA, userB, utils.checkConnection(userA, userB)])
                 })
                 .spread(function (userA, userB, result) {
-                    if (!result) return false;
+                    if (!result) return true;
                     return Relationship
                         .find({ where: { following: userA.id, follower: userB.id } })
                         .then(function (rel) {
@@ -253,11 +253,18 @@ module.exports = function (swagger) {
                 utils.queryUserByUserId(req.query.user_id)
             ])
             .spread(function (userA, userB) {
-                return Relationship.findAll({ where: { following: userB.id } });
+                return Relationship.findAll({ where: { following: userB.id } }, { raw: true })
             })
-            .then(function (objs) {
-                return Promise.each(objs, function (obj) {
-                    return utils.queryUserByUserId(obj.following);
+            .then(function (rels) {
+                return Promise.each(rels, function (rel) {
+                    return User.find({ where: { id: rel.follower } }, { raw: true }).then(function (user) {
+                        return {
+                            id: user.id,
+                            fullname: user.fullname,
+                            username: user.username,
+                            email: user.email
+                        }
+                    });
                 });
             })
             .then(function (users) {
@@ -306,9 +313,16 @@ module.exports = function (swagger) {
             .spread(function (userA, userB) {
                 return Relationship.findAll({ where: { follower: userB.id } });
             })
-            .then(function (objs) {
-                return Promise.each(objs, function (obj) {
-                    return utils.queryUserByUserId(obj.following);
+            .then(function (rels) {
+                return Promise.each(rels, function (rel) {
+                    return User.find({ where: { id: rel.following } }, { raw: true }).then(function (user) {
+                        return {
+                            id: user.id,
+                            fullname: user.fullname,
+                            username: user.username,
+                            email: user.email
+                        }
+                    });
                 });
             })
             .then(function (users) {
