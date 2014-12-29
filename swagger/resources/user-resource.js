@@ -1,7 +1,8 @@
-var lib     = require('../lib'),
-    db      = require('../database'),
-    utils   = require('./_utils'),
-    Promise = require('bluebird');
+var lib       = require('../lib'),
+    db        = require('../database'),
+    utils     = require('./_utils'),
+    Promise   = require('bluebird'),
+    sequelize = require("sequelize");
 
 var param = lib.params,
     raise = lib.errors;
@@ -452,6 +453,58 @@ module.exports = function (swagger) {
                 })
                 .then(function (dreams) {
                     throw raise.success(dreams);
+                })
+                .catch(function (err) {
+                    raise.send(err, res);
+                });
+        }
+    });
+
+    // Search user
+    swagger.addGet({
+        'spec': {
+            nickname: 'searchUser',
+            path:'/user/search',
+            summary: 'Search user',
+            notes: 'Return a list of users',
+            method: 'GET',
+            produces: ['application/json'],
+            type: 'array',
+            items: {
+                $ref: 'User'
+            },
+            parameters: [
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('query_str', 'Query string', 'string', true)
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.query_str)
+                throw raise.notFound('query_str');
+
+            User.findAll({
+                    where: sequelize.or(
+                        ["username LIKE '%" + req.query.query_str + "%'"],
+                        sequelize.or(
+                            ["email LIKE '%" + req.query.query_str + "%'"],
+                            ["fullname LIKE '%" + req.query.query_str + "%'"]
+                        )
+                    )
+                })
+                .then(function (users) {
+                    return Promise.each(users, function (user) {
+                        return {
+                            id: user.id,
+                            fullname: user.fullname,
+                            username: user.username,
+                            email: user.email
+                        }
+                    });
+                })
+                .then(function (users) {
+                    throw raise.success(users);
                 })
                 .catch(function (err) {
                     raise.send(err, res);
