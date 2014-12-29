@@ -221,6 +221,108 @@ module.exports = function (swagger) {
         }
     })
 
+    // Get all followings
+    swagger.addGet({
+        'spec': {
+            nickname: 'getAllFollowing',
+            path:'/user/followings',
+            summary: 'Get all followings of a user',
+            notes: 'Return followings from user_id',
+            method: 'GET',
+            produces: ['application/json'],
+            type: 'array',
+            items: {
+                $ref: 'User'
+            },
+            parameters: [
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('user_id', 'User unique identifier', 'integer', true),
+                param.query('offset', 'The number of followings you want to skip', 'integer', false),
+                param.query('limit', 'The number of followings you want to get', 'integer', false)
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.user_id)
+                throw raise.notFound('user_id');
+            var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
+
+            Promise.all([
+                utils.queryUserBySessionId(req.query.session_id),
+                utils.queryUserByUserId(req.query.user_id)
+            ])
+            .spread(function (userA, userB) {
+                return Relationship.findAll({ where: { following: userB.id } });
+            })
+            .then(function (objs) {
+                return Promise.each(objs, function (obj) {
+                    return utils.queryUserByUserId(obj.following);
+                });
+            })
+            .then(function (users) {
+                throw raise.success({
+                    num: users.length,
+                    users: users
+                });
+            })
+            .catch(function (err) {
+                raise.send(err, res);
+            });
+        }
+    });
+
+    // Get all followers
+    swagger.addGet({
+        'spec': {
+            nickname: 'getAllFollower',
+            path:'/user/followers',
+            summary: 'Get all followers of a user',
+            notes: 'Return followers from user_id',
+            method: 'GET',
+            produces: ['application/json'],
+            type: 'array',
+            items: {
+                $ref: 'User'
+            },
+            parameters: [
+                param.query('session_id', 'Session unique identifier', 'integer', true),
+                param.query('user_id', 'User unique identifier', 'integer', true),
+                param.query('offset', 'The number of followers you want to skip', 'integer', false),
+                param.query('limit', 'The number of followers you want to get', 'integer', false)
+            ]
+        },
+        'action': function (req, res) {
+            if (!req.query.session_id)
+                throw raise.notFound('session_id');
+            if (!req.query.user_id)
+                throw raise.notFound('user_id');
+            var offset = req.query.offset || 0, limit = req.query.limit || 1000000;
+
+            Promise.all([
+                utils.queryUserBySessionId(req.query.session_id),
+                utils.queryUserByUserId(req.query.user_id)
+            ])
+            .spread(function (userA, userB) {
+                return Relationship.findAll({ where: { follower: userB.id } });
+            })
+            .then(function (objs) {
+                return Promise.each(objs, function (obj) {
+                    return utils.queryUserByUserId(obj.following);
+                });
+            })
+            .then(function (users) {
+                throw raise.success({
+                    num: users.length,
+                    users: users
+                });
+            })
+            .catch(function (err) {
+                raise.send(err, res);
+            });
+        }
+    });
+
     // Get all dreams of user
     swagger.addGet({
         'spec': {
