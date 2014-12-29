@@ -555,10 +555,10 @@ Swagger.prototype.errors = {
         'message': field + ' not found'
       };
     } else {
-      res.send({
+      res.status(404).send({
         'code': 404,
         'message': field + ' not found'
-      }, 404);
+      });
     }
   },
   'invalid': function (field, res) {
@@ -568,10 +568,23 @@ Swagger.prototype.errors = {
         'message': 'invalid ' + field
       };
     } else {
-      res.send({
+      res.status(400).send({
         'code': 400,
         'message': 'invalid ' + field
-      }, 404);
+      });
+    }
+  },
+  'unauthorized': function (res) {
+    if (!res) {
+      return {
+        'code': 401,
+        'message': 'unauthorized'
+      }
+    } else {
+      res.status(401).send({
+        'code': 401,
+        'message': 'unauthorized'
+      });
     }
   },
   'forbidden': function (res) {
@@ -581,11 +594,35 @@ Swagger.prototype.errors = {
         'message': 'forbidden'
       };
     } else {
-      res.send({
+      res.status(403).send({
         'code': 403,
         'message': 'forbidden'
-      }, 403);
+      });
     }
+  },
+  'internal': function (msg, res) {
+    if (!res) {
+      return msg;
+    } else {
+      res.status(500).send(msg);
+    }
+  },
+  'success': function (msg, res) {
+    if (!res) {
+      return {
+        'code': 200,
+        'message': msg
+      }
+    } else {
+      res.status(200).send({
+        'code': 200,
+        'message': msg
+      });
+    }
+  },
+  'send': function (msg, res) {
+    var rcode = msg.code || 500;
+    res.status(rcode).send(msg);
   }
 };
 

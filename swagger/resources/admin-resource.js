@@ -8,12 +8,13 @@ var User    = db.models.User,
     Session = db.models.Session;
 
 module.exports = function (swagger) {
-    // Get all users
+
+    // Get all users (for testing only)
     swagger.addGet({
         'spec': {
             nickname: 'getAllUsers',
             path: '/admin/users',
-            summary: 'Get the information of all user',
+            summary: 'Get the information of all user (for testing only)',
             notes: 'Return a list of users',
             method: 'GET',
             produces : ['application/json'],
@@ -37,20 +38,20 @@ module.exports = function (swagger) {
                     limit: req.query.limit
                 })
                 .then(function (users) {
-                    res.status(200).send(users);
+                    throw raise.success(users);
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
+                    raise.send(err, res);
                 });
         }
     });
 
-    // Get all sessions
+    // Get all sessions (for testing only)
     swagger.addGet({
         'spec': {
             nickname: 'getAllSessions',
             path: '/admin/sessions',
-            summary: 'Get the information of all sessions',
+            summary: 'Get the information of all sessions (for testing only)',
             notes: 'Return a list of sessions',
             method: 'GET',
             produces : ['application/json'],
@@ -75,15 +76,13 @@ module.exports = function (swagger) {
                     limit: req.query.limit
                 })
                 .then(function (users) {
-                    res.status(200).send(users);
+                    throw raise.success(users);
                 })
                 .catch(function (err) {
-                    res.status(400).send(err);
+                    raise.send(err, res);
                 });
         }
     });
-    
-    
 
     swagger.configureDeclaration('admin', {
         description : 'Operations for Admin / Testing',

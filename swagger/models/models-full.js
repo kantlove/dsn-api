@@ -88,6 +88,7 @@ module.exports = {
         }
     },
     
+    // Hashtag
     "Hashtag": {
         "id": "Hashtag",
         "required": ["id", "text"],

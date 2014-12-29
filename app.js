@@ -18,8 +18,8 @@ else
     global.appHost = 'http://dreamyday.tk';
 
 fs.writeFileSync('./swagger-ui/index.html',
-                 fs.readFileSync('./swagger-ui/index.txt', 'utf8')
-                 .replace('{swagger-startup-url}', global.appHost + '/api-docs'));
+    fs.readFileSync('./swagger-ui/index.txt', 'utf8')
+      .replace('{swagger-startup-url}', global.appHost + '/api-docs'));
 
 var corsOptions = {
     origin: function (origin, callback) {

@@ -23,8 +23,8 @@ module.exports = {
         }
     },
 
-    // Session
-    "SessionPost": {
+    // Session for testing
+    "SessionPost1": {
         "id": "SessionPost",
         "required": ["user_id"],
         "properties": {
@@ -46,7 +46,7 @@ module.exports = {
             },
             "password": {
                 "type": "string",
-                "description": "User's password"
+                "description": "Password"
             }
         }
     },
@@ -99,6 +99,94 @@ module.exports = {
             "text": {
                 "type": "string",
                 "description": "Hastag content"
+            }
+        }
+    },
+
+    // Follow
+    "FollowPost": {
+        "id": "FollowPost",
+        "required": ["session_id", "user_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "user_id": {
+                "type": "int",
+                "description": "Unique identifier of the user who you want to follow"
+            }
+        }
+    },
+
+    // DreamLikePost
+    "DreamLikePost": {
+        "id": "DreamLikePost",
+        "required": ["session_id", "dream_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            }
+        }
+    },
+
+    // AchievementLikePost
+    "AchievementLikePost": {
+        "id": "AchievementLikePost",
+        "required": ["session_id", "achievement_id"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_id": {
+                "type": "int",
+                "description": "Unique identifier of the achievement who user want to like"
+            }
+        }
+    },
+
+    // DreamCommentPost
+    "DreamCommentPost": {
+        "id": "DreamCommentPost",
+        "required": ["session_id", "dream_id", "text"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "dream_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            },
+            "text": {
+                "type": "string",
+                "description": "Content of the comment"
+            }
+        }
+    },
+
+    // AchievementCommentPost
+    "AchievementCommentPost": {
+        "id": "AchievementCommentPost",
+        "required": ["session_id", "achievement_id", "text"],
+        "properties": {
+            "session_id": {
+                "type": "int",
+                "description": "Session unique identifier"
+            },
+            "achievement_id": {
+                "type": "int",
+                "description": "Unique identifier of the dream who user want to like"
+            },
+            "text": {
+                "type": "string",
+                "description": "Content of the comment"
             }
         }
     }

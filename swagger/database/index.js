@@ -15,7 +15,7 @@ var configFile = global.localDb ? 'config-local.json' : 'config-server.json';
 var config = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, configFile), 'utf8'));
 var connectionString =
     config.dialect + '://' + config.username + ':' + config.password
-+ '@' + config.host + ':' + config.port + '/' + config.database;
+        + '@' + config.host + ':' + config.port + '/' + config.database;
 
 /* Create a new client */
 var sequelize = require("sequelize");
@@ -57,10 +57,12 @@ var Dream = client.define('Dream', {
 }, { underscored: true });
 
 var DreamLike = client.define('DreamLike', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 }, { underscored: true });
 
 var DreamComment = client.define('DreamComment', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
@@ -69,10 +71,12 @@ var Achievement = client.define('Achievement', {
 }, { underscored: true });
 
 var AchievementLike = client.define('AchievementLike', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     value: { type: sequelize.BOOLEAN, allowNull: false, defaultValue: true }
 }, { underscored: true });
 
 var AchievementComment = client.define('AchievementComment', {
+    user_id: { type: sequelize.INTEGER, allowNull: false },
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
@@ -84,6 +88,11 @@ var Hashtag = client.define('Hashtag', {
     text: { type: sequelize.TEXT, allowNull: false }
 }, { underscored: true });
 
+var Relationship = client.define('Relationship', {
+    following: { type: sequelize.INTEGER, allowNull: false },
+    follower: { type: sequelize.INTEGER, allowNull: false }
+});
+
 /* Relations */
 
 Dream.belongsTo(User);
@@ -92,42 +101,37 @@ Dream.hasMany(DreamLike, { as: 'Likes'});
 Dream.hasMany(DreamComment, { as: 'Comments' });
 Dream.hasMany(Hashtag);
 
-DreamLike.belongsTo(User);
 DreamLike.belongsTo(Dream);
-
-DreamComment.hasMany(Hashtag);
-DreamComment.belongsTo(User);
 DreamComment.belongsTo(Dream);
 
 Achievement.hasMany(AchievementLike, { as: 'Likes' });
 Achievement.hasMany(AchievementComment, { as: 'Comments' });
 Achievement.hasMany(Hashtag);
 
-AchievementLike.belongsTo(User);
 AchievementLike.belongsTo(Achievement);
-
-AchievementComment.hasMany(Hashtag);
-AchievementComment.belongsTo(User);
 AchievementComment.belongsTo(Achievement);
 
-Session.belongsTo(User);
+DreamComment.hasMany(Hashtag);
+AchievementComment.hasMany(Hashtag);
 
 Hashtag.hasMany(Dream);
 Hashtag.hasMany(DreamComment);
 Hashtag.hasMany(Achievement);
 Hashtag.hasMany(AchievementComment);
 
+User.hasMany(Session);
+
 /* Execute */
 
 client
-.sync({ force: global.resetDb })
-.complete(function (err) {
-    if (err) {
-        console.log('An error occurred while creating the table:', err)
-    } else {
-        console.log('It worked!')
-    }
-});
+    .sync({ force: global.resetDb })
+    .complete(function (err) {
+        if (err) {
+            console.log('An error occurred while creating the table:', err)
+        } else {
+            console.log('It worked!')
+        }
+    });
 
 /* Exports */
 
@@ -141,5 +145,6 @@ module.exports.models = {
     AchievementLike: AchievementLike,
     AchievementComment: AchievementComment,
     Session: Session,
-    Hashtag: Hashtag
+    Hashtag: Hashtag,
+    Relationship: Relationship
 }

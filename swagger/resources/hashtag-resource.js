@@ -22,17 +22,17 @@ module.exports = function (swagger) {
             produces : ['application/json'],
             type: 'Hashtag',
             parameters: [
-                param.query('hashtagId', 'Hashtag unique identifier', 'integer', true)
+                param.query('hashtag_id', 'Hashtag unique identifier', 'integer', true)
             ]
         },
         'action': function (req, res) {
-            if (!req.query.hashtagId)
-                throw raise.notFound('hashtagId');
+            if (!req.query.hashtag_id)
+                throw raise.notFound('hashtag_id');
             Hashtag
-            .find({ where: { id: req.query.hashtagId }})
-            .then(function (hashtag) {
+                .find({ where: { id: req.query.hashtag_id }})
+                .then(function (hashtag) {
                 if (!hashtag)
-                    throw raise.invalid('hashtagId');
+                    throw raise.invalid('hashtag_id');
                 res.status(200).send(hashtag);
             })
             .catch(function (err) {
@@ -87,7 +87,8 @@ module.exports = function (swagger) {
             method: 'DELETE',
             produces : ['application/json'],
             parameters: [
-                param.body('body', 'Id of the hashtag that need to be deleted', 'HashtagDelete', JSON.stringify({ session_id: '0', hashtag_id: '0' }, null, 4))
+                param.body('body', 'Id of the hashtag that need to be deleted', 'HashtagDelete',
+                    JSON.stringify({ session_id: '0', hashtag_id: '0' }, null, 4))
             ]
         },
         'action': function (req, res) {
@@ -97,25 +98,25 @@ module.exports = function (swagger) {
                 throw raise.notFound('hashtag_id');
 
             Hashtag
-            .find({ where: { id: req.body.hashtag_id }})
-            .then(function (hashtag) {
-                if (!hashtag)
-                    throw raise.invalid('invalid hashtag_id');
-                hashtag.destroy()
-                .then(function () {
-                    res.status(200).send({ 
-                        message: 'deleted!',
-                        hashtag: hashtag.text
+                .find({ where: { id: req.body.hashtag_id }})
+                .then(function (hashtag) {
+                    if (!hashtag)
+                        throw raise.invalid('invalid hashtag_id');
+                    hashtag.destroy()
+                        .then(function () {
+                        res.status(200).send({ 
+                            message: 'deleted!',
+                            hashtag: hashtag.text
+                        });
+                    })
+                    .catch(function (err) {
+                        res.status(400).send(err);
                     });
                 })
                 .catch(function (err) {
                     res.status(400).send(err);
                 });
-            })
-            .catch(function (err) {
-                res.status(400).send(err);
-            });
-        }
+            }
     });
 
     // Get all hashtags
