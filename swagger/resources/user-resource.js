@@ -9,6 +9,8 @@ var param = lib.params,
 var User         = db.models.User,
     Session      = db.models.Session,
     Dream        = db.models.Dream,
+    DreamLike    = db.models.DreamLike,
+    DreamComment = db.models.DreamComment,
     Relationship = db.models.Relationship;
 
 module.exports = function (swagger) {
@@ -249,13 +251,28 @@ module.exports = function (swagger) {
             Dream
                 .findAll({
                     where: { user_id: req.query.user_id },
+                    order: 'updated_at DESC',
                     offset: offset,
                     limit: limit
-                }).then(function (dreams) {
+                }, { raw: true })
+                .then(function (dreams) {
+                    return Promise.each(dreams, function (dream) {
+                        return Promise.all([
+                            dream,
+                            DreamLike.count({ where: { dream_id: dream.id } }),
+                            DreamComment.count({ where: { dream_id: dream.id } })
+                        ]).spread(function (dream, num_likes, num_cmts) {
+                            dream.num_likes = num_likes;
+                            dream.num_cmts = num_cmts;
+                            return dream; 
+                        });
+                    });
+                })
+                .then(function (dreams) {
                     throw raise.success(dreams);
                 })
-                .catch(function(err) {
-                    res.send(err, res);
+                .catch(function (err) {
+                    raise.send(err, res);
                 });
         }
     });
@@ -302,6 +319,19 @@ module.exports = function (swagger) {
                         order: 'updated_at DESC',
                         offset: offset,
                         limit: limit
+                    }, { raw: true });
+                })
+                .then(function (dreams) {
+                    return Promise.each(dreams, function (dream) {
+                        return Promise.all([
+                            dream,
+                            DreamLike.count({ where: { dream_id: dream.id } }),
+                            DreamComment.count({ where: { dream_id: dream.id } })
+                        ]).spread(function (dream, num_likes, num_cmts) {
+                            dream.num_likes = num_likes;
+                            dream.num_cmts = num_cmts;
+                            return dream; 
+                        });
                     });
                 })
                 .then(function (dreams) {
