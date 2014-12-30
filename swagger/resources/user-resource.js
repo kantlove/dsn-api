@@ -426,11 +426,12 @@ module.exports = function (swagger) {
                             Relationship.findAll({ where: { following: user.id } })
                         ]);
                 })
-                .spread(function (user, users) {
+                .spread(function (user, rels) {
                     var user_ids = [];
                     user_ids.push(user.id);
-                    for (var u in users)
-                        user_ids.push(u.id);
+                    for (var i = 0; i < rels.length; ++i)
+                        user_ids.push(rels[i].follower);
+                    console.log(user_ids);
                     return Dream.findAll({
                         where: { user_id: user_ids },
                         order: 'updated_at DESC',
