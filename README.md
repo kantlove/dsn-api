@@ -1,6 +1,9 @@
 dsn-api
 =======
 
+CS 300 - Software Engineering
+Final Project
+
 ## Install
 ```
 npm install
